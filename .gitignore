@@ -1,1 +1,8 @@
 raw_data/
+.env
+google_suite/auth/
+google_suite/auth/credentials_google.json
+google_suite/auth/*.json
+__pycache__/
+.ipynb_checkpoints/
+.DS_Store

@@ -1,144 +1,188 @@
-# generate_synthetic_dataset.py
-
-import pandas as pd
-import numpy as np
+import os
 import random
-import time
-from typing import Dict, Tuple
+import json
+import numpy as np
+import pandas as pd
+from pathlib import Path
 
-# =============================
-# Rango de burnout index por tipo de semana
-# =============================
-RANGO_INDEX = {
-    1: (1.0, 3.0),
-    2: (3.1, 5.0),
-    3: (5.1, 7.5),
-    4: (7.6, 10.0),
+# ========================
+# CONFIGURACIÓN GENERAL
+# ========================
+
+N_ROWS = 1000
+TYPICAL_RATIO = 0.6
+AMBIGUOUS_RATIO = 0.3
+COHERENT_RATIO = 0.1
+
+# Ruta absoluta al directorio actual (donde está este script)
+BASE_DIR = Path(__file__).resolve().parent
+RAW_DATA_PATH = BASE_DIR / "raw_data"
+RAW_DATA_PATH.mkdir(parents=True, exist_ok=True)
+
+OUTPUT_FILE = RAW_DATA_PATH / "synthetic_burnout_dataset.csv"
+
+# ========================
+# UMBRALES POR CLASE
+# ========================
+
+CLASS_THRESHOLDS = {
+    "semana_saludable": {
+        "num_events": (0, 9),
+        "num_events_outside_hours": (0, 1),
+        "total_meeting_hours": (0, 9),
+        "avg_meeting_duration": (0, 44),
+        "meetings_weekend": (0, 0),
+        "emails_sent": (0, 10),
+        "emails_sent_out_of_hours": (0, 2),
+        "docs_created": (0, 2),
+        "docs_edited": (0, 3),
+        "num_meetings_no_breaks": (0, 0),
+        "emails_received": (0, 20),
+        "num_overlapping_meetings": (0, 0)
+    },
+    "semana_carga_aceptable": {
+        "num_events": (10, 14),
+        "num_events_outside_hours": (2, 3),
+        "total_meeting_hours": (10, 14),
+        "avg_meeting_duration": (45, 59),
+        "meetings_weekend": (1, 1),
+        "emails_sent": (11, 20),
+        "emails_sent_out_of_hours": (3, 5),
+        "docs_created": (3, 4),
+        "docs_edited": (4, 7),
+        "num_meetings_no_breaks": (1, 2),
+        "emails_received": (21, 35),
+        "num_overlapping_meetings": (1, 1)
+    },
+    "semana_carga_excesiva": {
+        "num_events": (15, 24),
+        "num_events_outside_hours": (4, 5),
+        "total_meeting_hours": (15, 24),
+        "avg_meeting_duration": (60, 74),
+        "meetings_weekend": (2, 2),
+        "emails_sent": (21, 30),
+        "emails_sent_out_of_hours": (6, 8),
+        "docs_created": (5, 9),
+        "docs_edited": (8, 14),
+        "num_meetings_no_breaks": (3, 5),
+        "emails_received": (46, 50),
+        "num_overlapping_meetings": (2, 3)
+    },
+    "semana_agotamiento_extremo": {
+        "num_events": (25, 40),
+        "num_events_outside_hours": (6, 10),
+        "total_meeting_hours": (25, 40),
+        "avg_meeting_duration": (75, 120),
+        "meetings_weekend": (3, 5),
+        "emails_sent": (31, 50),
+        "emails_sent_out_of_hours": (9, 15),
+        "docs_created": (10, 15),
+        "docs_edited": (15, 20),
+        "num_meetings_no_breaks": (6, 10),
+        "emails_received": (51, 80),
+        "num_overlapping_meetings": (4, 10)
+    }
 }
 
-# =============================
-# Pesos por feature para el burnout index
-# =============================
-PESOS = {
-    'num_events': 0.7,
-    'num_events_outside_hours': 1.2,
-    'total_meeting_hours': 1.0,
-    'avg_meeting_duration': 0.5,
-    'meetings_weekend': 1.0,
-    'emails_sent': 0.8,
-    'emails_sent_out_of_hours': 1.3,
-    'docs_created': 0.6,
-    'docs_edited': 0.6,
-    'num_meetings_no_breaks': 1.0
+# ========================
+# PESOS PARA BURNOUT INDEX
+# ========================
+
+FEATURE_WEIGHTS = {
+    "num_events": 0.7,
+    "num_events_outside_hours": 1.2,
+    "total_meeting_hours": 1.0,
+    "avg_meeting_duration": 0.5,
+    "meetings_weekend": 1.0,
+    "emails_sent": 0.8,
+    "emails_sent_out_of_hours": 1.3,
+    "docs_created": 0.6,
+    "docs_edited": 0.6,
+    "num_meetings_no_breaks": 1.0,
+    "emails_received": 0.7,
+    "num_overlapping_meetings": 1.1
 }
 
-# =============================
-# Rango por feature según tipo de semana
-# =============================
-RANGOS: Dict[str, Dict[int, Tuple[int, int]]] = {
-    'num_events': {
-        1: (0, 9), 2: (10, 14), 3: (15, 24), 4: (25, 40),
-    },
-    'num_events_outside_hours': {
-        1: (0, 1), 2: (2, 3), 3: (4, 5), 4: (6, 10),
-    },
-    'total_meeting_hours': {
-        1: (0, 9), 2: (10, 14), 3: (15, 24), 4: (25, 40),
-    },
-    'avg_meeting_duration': {
-        1: (0, 44), 2: (45, 59), 3: (60, 74), 4: (75, 120),
-    },
-    'meetings_weekend': {
-        1: (0, 0), 2: (1, 1), 3: (2, 2), 4: (3, 6),
-    },
-    'emails_sent': {
-        1: (0, 10), 2: (11, 20), 3: (21, 30), 4: (31, 60),
-    },
-    'emails_sent_out_of_hours': {
-        1: (0, 2), 2: (3, 5), 3: (6, 8), 4: (9, 20),
-    },
-    'docs_created': {
-        1: (0, 2), 2: (3, 4), 3: (5, 9), 4: (10, 20),
-    },
-    'docs_edited': {
-        1: (0, 3), 2: (4, 7), 3: (8, 14), 4: (15, 30),
-    },
-    'num_meetings_no_breaks': {
-        1: (0, 1), 2: (2, 3), 3: (4, 5), 4: (6, 10),
-    },
+CLASS_INDEX_RANGES = {
+    "semana_saludable": (1.0, 3.0),
+    "semana_carga_aceptable": (3.1, 5.0),
+    "semana_carga_excesiva": (5.1, 7.5),
+    "semana_agotamiento_extremo": (7.6, 10.0)
 }
 
-# =============================
-# Funciones auxiliares
-# =============================
-def normalizar(valor: float, tipo: int, feature: str) -> float:
-    rango = RANGOS[feature][tipo]
-    min_val, max_val = rango
-    if max_val == min_val:
-        return RANGO_INDEX[tipo][0]  # Valor mínimo del burnout index para esa categoría
-    escala_min, escala_max = RANGO_INDEX[tipo]
-    return escala_min + (valor - min_val) * (escala_max - escala_min) / (max_val - min_val)
+# ========================
+# FUNCIONES
+# ========================
 
-def calcular_burnout_index(registro: dict, tipo: int) -> float:
-    score_total = 0
-    suma_pesos = 0
-    for f, val in registro.items():
-        if f not in PESOS:
-            continue
-        peso = PESOS[f]
-        score = normalizar(val, tipo, f)
-        score_total += peso * score
-        suma_pesos += peso
-    return round(score_total / suma_pesos, 2)
+def sample_feature(feature, week_type):
+    lo, hi = CLASS_THRESHOLDS[week_type][feature]
+    return round(random.uniform(lo, hi), 2)
 
-def generar_valor(f: str, tipo: int, dentro: bool = True) -> int:
-    if dentro:
-        rango = RANGOS[f][tipo]
-    else:
-        otros = [t for t in RANGOS[f] if t != tipo]
-        tipo_fuera = random.choice(otros)
-        rango = RANGOS[f][tipo_fuera]
-    return random.randint(*rango)
+def determine_week_type_from_features(row):
+    counts = {key: 0 for key in CLASS_THRESHOLDS.keys()}
+    for feature, value in row.items():
+        for week_type, thresholds in CLASS_THRESHOLDS.items():
+            lo, hi = thresholds[feature]
+            if lo <= value <= hi:
+                counts[week_type] += 1
+                break
+    return random.choices(list(counts.keys()), weights=[counts[k] for k in counts])[0]
 
-# =============================
-# Generación de registros
-# =============================
-features = list(PESOS.keys())
-NUM_REGISTROS = 1000
-REG_POR_TIPO = NUM_REGISTROS // 4
-TIPOS = [1, 2, 3, 4]
+def calculate_burnout_index(row, week_type, mode):
+    lo, hi = CLASS_INDEX_RANGES[week_type]
+    if mode == "deterministic":
+        return round(random.uniform(lo, hi), 2)
+    elif mode == "formula":
+        max_weights = sum(FEATURE_WEIGHTS.values())
+        norm = sum(min(row[f]/(CLASS_THRESHOLDS["semana_agotamiento_extremo"][f][1] or 1), 1) * w
+                   for f, w in FEATURE_WEIGHTS.items()) / max_weights
+        noise = np.random.normal(loc=0.0, scale=0.2)
+        return round(min(max(lo, norm * (hi - lo) + lo + noise), hi), 2)
+    elif mode == "random":
+        return round(random.uniform(lo, hi), 2)
 
-# Lista de tipos ya mezclada
-tipos_lista = [t for t in TIPOS for _ in range(REG_POR_TIPO)]
-random.shuffle(tipos_lista)
+# ========================
+# GENERACIÓN DE FILAS
+# ========================
 
-dataset = []
-
-for tipo in tipos_lista:
-    while True:
-        dentro = random.sample(features, 7)
-        fuera = [f for f in features if f not in dentro]
-        registro = {}
-
-        for f in dentro:
-            registro[f] = generar_valor(f, tipo, dentro=True)
-        for f in fuera:
-            registro[f] = generar_valor(f, tipo, dentro=False)
-
-        burnout = calcular_burnout_index(registro, tipo)
-        min_idx, max_idx = RANGO_INDEX[tipo]
-
-        if min_idx <= burnout <= max_idx:
-            registro["burnout_index"] = burnout
-            registro["tipo_semana"] = tipo
-            dataset.append(registro)
-            print(f"✅ Registro {len(dataset)} de {NUM_REGISTROS} generado para tipo {tipo} (index: {burnout:.2f})")
-            time.sleep(0.05)
-            break
+def generate_rows():
+    rows = []
+    for i in range(N_ROWS):
+        if i < N_ROWS * TYPICAL_RATIO:
+            base_type = random.choice(list(CLASS_THRESHOLDS.keys()))
+            features = {}
+            primary_features = random.sample(list(CLASS_THRESHOLDS[base_type].keys()), 6)
+            for feature in CLASS_THRESHOLDS[base_type]:
+                assigned_type = base_type if feature in primary_features else random.choice(list(CLASS_THRESHOLDS.keys()))
+                features[feature] = sample_feature(feature, assigned_type)
+            final_week = determine_week_type_from_features(features)
+        elif i < N_ROWS * (TYPICAL_RATIO + AMBIGUOUS_RATIO):
+            # Ambiguous: completamente aleatorio
+            features = {f: sample_feature(f, random.choice(list(CLASS_THRESHOLDS.keys()))) for f in FEATURE_WEIGHTS}
+            final_week = determine_week_type_from_features(features)
         else:
-            print("🔁 Recalculando...")
+            # Coherente: todas las variables de un solo tipo
+            base_type = random.choice(list(CLASS_THRESHOLDS.keys()))
+            features = {f: sample_feature(f, base_type) for f in FEATURE_WEIGHTS}
+            final_week = base_type
 
-# Guardar como CSV
-df = pd.DataFrame(dataset)
-df.to_csv("raw_data/synthetic_burnout_dataset.csv", index=False)
-print("\n✅ Dataset completo generado y guardado en 'raw_data/synthetic_burnout_dataset.csv'")
+        # Burnout index con modo aleatorio controlado
+        mode = random.choices(["deterministic", "formula", "random"], weights=[0.1, 0.6, 0.3])[0]
+        burnout_index = calculate_burnout_index(features, final_week, mode)
+
+        row = features.copy()
+        row["tipo_de_semana"] = final_week
+        row["burnout_index"] = burnout_index
+        rows.append(row)
+    return rows
+
+# ========================
+# MAIN
+# ========================
+
+if __name__ == "__main__":
+    dataset = generate_rows()
+    print(f"Filas generadas: {len(dataset)}")
+    df = pd.DataFrame(dataset)
+    df.to_csv(OUTPUT_FILE, index=False)
+    print(f"✅ Dataset generado con éxito: {OUTPUT_FILE}")
