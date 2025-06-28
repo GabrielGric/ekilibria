@@ -1,6 +1,5 @@
 raw_data/
 .env
-ekilibria/google_suite/auth/
 ekilibria/google_suite/auth/credentials_google.json
 ekilibria/google_suite/auth/*.json
 ekilibria/google_suite/services/users_features/
