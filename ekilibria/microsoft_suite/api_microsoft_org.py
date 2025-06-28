@@ -1,7 +1,5 @@
-import requests
-import os
-import sys
 import asyncio
+import os
 from time_zones import build_windows_to_iana_map
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
@@ -15,7 +13,7 @@ from msgraph import GraphServiceClient
 # Link for concent to access Microsoft Graph API:
 # https://login.microsoftonline.com/common/adminconsent?client_id=845ac38e-8122-4897-939d-0532d48feb95
 
-client_id = "845ac38e-8122-4897-939d-0532d48feb95"
+CLIENT_ID_MICROSOFT = os.getenv("CLIENT_ID_MICROSOFT")
 
 def get_microsoft_graph_api_token(client_id):
 
@@ -252,7 +250,7 @@ async def get_files(client, user_time_zone, iana_time_zone, from_date, to_date):
 async def main():
 
     # Get Microsoft Graph API token
-    client = get_microsoft_graph_api_token(client_id)
+    client = get_microsoft_graph_api_token(CLIENT_ID_MICROSOFT)
 
     # Get the user's working hours and time zone
     user_time_zone = await (user(client))

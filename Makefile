@@ -12,3 +12,7 @@ run-api:
 
 run-streamlit:
 	streamlit run ekilibria/interface/streamlit_app.py
+
+reinstall_package:
+	@pip uninstall -y ekilibria || :
+	@pip install -e .
