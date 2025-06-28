@@ -247,6 +247,43 @@ async def get_files(client, user_time_zone, iana_time_zone, from_date, to_date):
 
     return result
 
+
+async def get_data(client):
+
+    # Get the user's working hours and time zone
+    user_time_zone = await (user(client))
+    if not user_time_zone:
+        print("❌ Unable to fetch user time zone information.")
+        return
+
+    time_zones = build_windows_to_iana_map()
+    iana_time_zone = time_zones.get(user_time_zone["timeZone"].name, 'UTC')
+
+    # Get past week's date range(Monday to Sunday)
+    today = datetime.now(ZoneInfo(iana_time_zone))
+    start_of_past_week = today - timedelta(days=today.weekday())  # Monday
+    start_of_past_week -= timedelta(weeks=1)  # Go back one week
+    # Calculate the end of the week (Sunday)
+    end_of_week = start_of_past_week + timedelta(days=6)  # Sunday
+    from_date = start_of_past_week.replace(hour=0, minute=0, second=0, microsecond=0)
+    to_date = end_of_week.replace(hour=23, minute=59, second=59, microsecond=999999)
+
+    emails_inbox = await (get_mails(client,user_time_zone,iana_time_zone, from_date, to_date,"Inbox"))
+    emails_sent = await (get_mails(client,user_time_zone,iana_time_zone, from_date, to_date,"SentItems"))
+    events = await (get_events(client, user_time_zone, iana_time_zone, from_date, to_date))
+    files = await (get_files(client, user_time_zone, iana_time_zone, from_date, to_date))
+
+    # Merge results into a single dictionary, keeping the original keys
+    result = emails_inbox.copy()
+    result.update(emails_sent)
+    result.update(events)
+    result.update(files)
+
+    print("\nResults:")
+    for key, value in result.items():
+        print(f"{key}: {value}")
+
+
 # Main function to run the script
 async def main():
 
