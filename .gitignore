@@ -1,1 +1,9 @@
 raw_data/
+.env
+ekilibria/google_suite/auth/credentials_google.json
+ekilibria/google_suite/auth/*.json
+ekilibria/google_suite/services/users_features/
+__pycache__/
+.ipynb_checkpoints/
+.DS_Store
+*.ipynb
