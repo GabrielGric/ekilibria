@@ -1,0 +1,500 @@
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 11.18, "num_events_outside_hours": 2.84, "total_meeting_hours": 12.86, "avg_meeting_duration": 67.23, "meetings_weekend": 1.0, "emails_sent": 19.79, "emails_sent_out_of_hours": 7.94, "docs_created": 3.18, "docs_edited": 5.7, "num_meetings_no_breaks": 1.25, "emails_received": 46.13, "num_overlapping_meetings": 2.4} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 28.16, "num_events_outside_hours": 4.83, "total_meeting_hours": 17.96, "avg_meeting_duration": 68.03, "meetings_weekend": 0.0, "emails_sent": 23.37, "emails_sent_out_of_hours": 4.22, "docs_created": 8.41, "docs_edited": 8.03, "num_meetings_no_breaks": 3.39, "emails_received": 9.52, "num_overlapping_meetings": 2.25} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 28.04, "num_events_outside_hours": 6.64, "total_meeting_hours": 37.69, "avg_meeting_duration": 28.67, "meetings_weekend": 1.0, "emails_sent": 4.21, "emails_sent_out_of_hours": 9.68, "docs_created": 3.12, "docs_edited": 17.66, "num_meetings_no_breaks": 6.16, "emails_received": 47.08, "num_overlapping_meetings": 1.0} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 0.14, "num_events_outside_hours": 4.06, "total_meeting_hours": 18.17, "avg_meeting_duration": 72.3, "meetings_weekend": 1.0, "emails_sent": 32.75, "emails_sent_out_of_hours": 14.53, "docs_created": 8.71, "docs_edited": 10.85, "num_meetings_no_breaks": 1.41, "emails_received": 48.22, "num_overlapping_meetings": 1.0} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 18.3, "num_events_outside_hours": 0.55, "total_meeting_hours": 39.77, "avg_meeting_duration": 113.96, "meetings_weekend": 3.43, "emails_sent": 15.51, "emails_sent_out_of_hours": 7.34, "docs_created": 0.73, "docs_edited": 4.64, "num_meetings_no_breaks": 8.04, "emails_received": 16.4, "num_overlapping_meetings": 0.0} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 26.88, "num_events_outside_hours": 7.12, "total_meeting_hours": 0.71, "avg_meeting_duration": 51.36, "meetings_weekend": 1.0, "emails_sent": 39.98, "emails_sent_out_of_hours": 4.93, "docs_created": 11.9, "docs_edited": 18.4, "num_meetings_no_breaks": 1.77, "emails_received": 76.14, "num_overlapping_meetings": 0.0} }'
+# → Valor predicho por modelo local: 3
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 17.13, "num_events_outside_hours": 9.21, "total_meeting_hours": 1.89, "avg_meeting_duration": 82.56, "meetings_weekend": 0.0, "emails_sent": 23.46, "emails_sent_out_of_hours": 11.99, "docs_created": 0.43, "docs_edited": 17.68, "num_meetings_no_breaks": 1.76, "emails_received": 75.18, "num_overlapping_meetings": 0.0} }'
+# → Valor predicho por modelo local: 3
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 13.29, "num_events_outside_hours": 2.23, "total_meeting_hours": 10.53, "avg_meeting_duration": 52.45, "meetings_weekend": 2.0, "emails_sent": 7.84, "emails_sent_out_of_hours": 3.9, "docs_created": 3.39, "docs_edited": 17.8, "num_meetings_no_breaks": 1.81, "emails_received": 33.21, "num_overlapping_meetings": 6.41} }'
+# → Valor predicho por modelo local: 3
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 29.78, "num_events_outside_hours": 2.65, "total_meeting_hours": 35.29, "avg_meeting_duration": 26.04, "meetings_weekend": 0.0, "emails_sent": 49.64, "emails_sent_out_of_hours": 3.46, "docs_created": 0.63, "docs_edited": 2.07, "num_meetings_no_breaks": 0.0, "emails_received": 11.11, "num_overlapping_meetings": 1.0} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 0.18, "num_events_outside_hours": 0.59, "total_meeting_hours": 16.81, "avg_meeting_duration": 55.34, "meetings_weekend": 0.0, "emails_sent": 34.94, "emails_sent_out_of_hours": 1.14, "docs_created": 13.17, "docs_edited": 1.42, "num_meetings_no_breaks": 0.0, "emails_received": 29.95, "num_overlapping_meetings": 7.04} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 16.02, "num_events_outside_hours": 2.09, "total_meeting_hours": 12.05, "avg_meeting_duration": 54.19, "meetings_weekend": 0.0, "emails_sent": 18.78, "emails_sent_out_of_hours": 4.27, "docs_created": 13.45, "docs_edited": 0.32, "num_meetings_no_breaks": 3.06, "emails_received": 48.75, "num_overlapping_meetings": 2.91} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 2.36, "num_events_outside_hours": 2.99, "total_meeting_hours": 16.18, "avg_meeting_duration": 52.36, "meetings_weekend": 1.0, "emails_sent": 23.76, "emails_sent_out_of_hours": 7.05, "docs_created": 3.52, "docs_edited": 6.3, "num_meetings_no_breaks": 1.37, "emails_received": 28.59, "num_overlapping_meetings": 1.0} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 12.52, "num_events_outside_hours": 6.96, "total_meeting_hours": 29.15, "avg_meeting_duration": 100.04, "meetings_weekend": 3.74, "emails_sent": 5.68, "emails_sent_out_of_hours": 11.9, "docs_created": 14.79, "docs_edited": 10.4, "num_meetings_no_breaks": 1.2, "emails_received": 46.97, "num_overlapping_meetings": 1.0} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 21.22, "num_events_outside_hours": 0.92, "total_meeting_hours": 22.68, "avg_meeting_duration": 65.7, "meetings_weekend": 2.0, "emails_sent": 24.23, "emails_sent_out_of_hours": 3.05, "docs_created": 1.08, "docs_edited": 12.94, "num_meetings_no_breaks": 3.34, "emails_received": 34.51, "num_overlapping_meetings": 7.2} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 23.97, "num_events_outside_hours": 2.55, "total_meeting_hours": 17.84, "avg_meeting_duration": 36.13, "meetings_weekend": 1.0, "emails_sent": 41.03, "emails_sent_out_of_hours": 3.95, "docs_created": 3.57, "docs_edited": 9.69, "num_meetings_no_breaks": 1.07, "emails_received": 25.04, "num_overlapping_meetings": 9.5} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 4.57, "num_events_outside_hours": 2.6, "total_meeting_hours": 4.45, "avg_meeting_duration": 50.53, "meetings_weekend": 4.26, "emails_sent": 16.09, "emails_sent_out_of_hours": 4.85, "docs_created": 3.71, "docs_edited": 10.65, "num_meetings_no_breaks": 4.2, "emails_received": 34.79, "num_overlapping_meetings": 0.0} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 22.72, "num_events_outside_hours": 8.3, "total_meeting_hours": 1.66, "avg_meeting_duration": 47.16, "meetings_weekend": 0.0, "emails_sent": 2.53, "emails_sent_out_of_hours": 0.97, "docs_created": 1.03, "docs_edited": 12.98, "num_meetings_no_breaks": 0.0, "emails_received": 7.28, "num_overlapping_meetings": 1.0} }'
+# → Valor predicho por modelo local: 3
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 27.96, "num_events_outside_hours": 2.97, "total_meeting_hours": 11.45, "avg_meeting_duration": 54.99, "meetings_weekend": 0.0, "emails_sent": 25.39, "emails_sent_out_of_hours": 0.03, "docs_created": 3.75, "docs_edited": 5.4, "num_meetings_no_breaks": 1.85, "emails_received": 22.45, "num_overlapping_meetings": 0.0} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 27.98, "num_events_outside_hours": 9.31, "total_meeting_hours": 1.09, "avg_meeting_duration": 101.51, "meetings_weekend": 0.0, "emails_sent": 7.98, "emails_sent_out_of_hours": 0.54, "docs_created": 1.39, "docs_edited": 0.31, "num_meetings_no_breaks": 0.0, "emails_received": 69.01, "num_overlapping_meetings": 0.0} }'
+# → Valor predicho por modelo local: 3
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 12.59, "num_events_outside_hours": 4.68, "total_meeting_hours": 5.48, "avg_meeting_duration": 112.95, "meetings_weekend": 1.0, "emails_sent": 26.87, "emails_sent_out_of_hours": 1.45, "docs_created": 8.75, "docs_edited": 8.89, "num_meetings_no_breaks": 0.0, "emails_received": 49.24, "num_overlapping_meetings": 2.48} }'
+# → Valor predicho por modelo local: 3
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 12.44, "num_events_outside_hours": 9.02, "total_meeting_hours": 2.52, "avg_meeting_duration": 47.71, "meetings_weekend": 4.81, "emails_sent": 11.99, "emails_sent_out_of_hours": 7.35, "docs_created": 3.32, "docs_edited": 4.49, "num_meetings_no_breaks": 0.0, "emails_received": 30.04, "num_overlapping_meetings": 8.22} }'
+# → Valor predicho por modelo local: 3
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 13.57, "num_events_outside_hours": 2.81, "total_meeting_hours": 23.2, "avg_meeting_duration": 54.04, "meetings_weekend": 3.94, "emails_sent": 0.5, "emails_sent_out_of_hours": 0.59, "docs_created": 3.03, "docs_edited": 5.42, "num_meetings_no_breaks": 1.51, "emails_received": 31.32, "num_overlapping_meetings": 1.0} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 23.01, "num_events_outside_hours": 6.48, "total_meeting_hours": 22.8, "avg_meeting_duration": 73.4, "meetings_weekend": 1.0, "emails_sent": 5.84, "emails_sent_out_of_hours": 7.36, "docs_created": 7.24, "docs_edited": 17.56, "num_meetings_no_breaks": 3.77, "emails_received": 48.71, "num_overlapping_meetings": 6.71} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 13.61, "num_events_outside_hours": 9.4, "total_meeting_hours": 12.35, "avg_meeting_duration": 51.62, "meetings_weekend": 2.0, "emails_sent": 32.58, "emails_sent_out_of_hours": 4.87, "docs_created": 3.05, "docs_edited": 5.02, "num_meetings_no_breaks": 3.88, "emails_received": 25.15, "num_overlapping_meetings": 7.7} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 8.25, "num_events_outside_hours": 6.16, "total_meeting_hours": 20.22, "avg_meeting_duration": 109.44, "meetings_weekend": 3.3, "emails_sent": 32.96, "emails_sent_out_of_hours": 9.22, "docs_created": 12.25, "docs_edited": 1.37, "num_meetings_no_breaks": 8.83, "emails_received": 11.52, "num_overlapping_meetings": 6.84} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 1.71, "num_events_outside_hours": 0.0, "total_meeting_hours": 8.27, "avg_meeting_duration": 27.07, "meetings_weekend": 2.0, "emails_sent": 6.28, "emails_sent_out_of_hours": 0.79, "docs_created": 6.72, "docs_edited": 2.17, "num_meetings_no_breaks": 0.0, "emails_received": 29.31, "num_overlapping_meetings": 1.0} }'
+# → Valor predicho por modelo local: 1
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 27.41, "num_events_outside_hours": 6.1, "total_meeting_hours": 13.74, "avg_meeting_duration": 112.25, "meetings_weekend": 2.0, "emails_sent": 8.04, "emails_sent_out_of_hours": 6.88, "docs_created": 10.84, "docs_edited": 4.05, "num_meetings_no_breaks": 1.62, "emails_received": 9.9, "num_overlapping_meetings": 6.91} }'
+# → Valor predicho por modelo local: 3
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 16.98, "num_events_outside_hours": 0.04, "total_meeting_hours": 19.66, "avg_meeting_duration": 69.08, "meetings_weekend": 2.0, "emails_sent": 21.55, "emails_sent_out_of_hours": 1.58, "docs_created": 3.27, "docs_edited": 11.05, "num_meetings_no_breaks": 3.29, "emails_received": 25.44, "num_overlapping_meetings": 2.26} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 18.0, "num_events_outside_hours": 0.45, "total_meeting_hours": 18.48, "avg_meeting_duration": 111.22, "meetings_weekend": 4.94, "emails_sent": 9.05, "emails_sent_out_of_hours": 9.06, "docs_created": 0.61, "docs_edited": 13.33, "num_meetings_no_breaks": 3.71, "emails_received": 27.97, "num_overlapping_meetings": 1.0} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 22.64, "num_events_outside_hours": 4.38, "total_meeting_hours": 21.61, "avg_meeting_duration": 70.43, "meetings_weekend": 2.0, "emails_sent": 27.3, "emails_sent_out_of_hours": 6.4, "docs_created": 6.85, "docs_edited": 11.9, "num_meetings_no_breaks": 3.24, "emails_received": 49.31, "num_overlapping_meetings": 2.56} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 39.11, "num_events_outside_hours": 7.89, "total_meeting_hours": 10.05, "avg_meeting_duration": 58.98, "meetings_weekend": 1.0, "emails_sent": 12.39, "emails_sent_out_of_hours": 14.23, "docs_created": 3.44, "docs_edited": 5.61, "num_meetings_no_breaks": 1.06, "emails_received": 22.34, "num_overlapping_meetings": 1.0} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 4.0, "num_events_outside_hours": 0.48, "total_meeting_hours": 3.66, "avg_meeting_duration": 25.04, "meetings_weekend": 0.0, "emails_sent": 4.44, "emails_sent_out_of_hours": 1.47, "docs_created": 1.04, "docs_edited": 1.25, "num_meetings_no_breaks": 0.0, "emails_received": 5.53, "num_overlapping_meetings": 0.0} }'
+# → Valor predicho por modelo local: 1
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 3.93, "num_events_outside_hours": 0.48, "total_meeting_hours": 7.44, "avg_meeting_duration": 103.77, "meetings_weekend": 0.0, "emails_sent": 15.67, "emails_sent_out_of_hours": 1.16, "docs_created": 1.56, "docs_edited": 9.47, "num_meetings_no_breaks": 0.0, "emails_received": 29.49, "num_overlapping_meetings": 0.0} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 13.07, "num_events_outside_hours": 2.57, "total_meeting_hours": 10.39, "avg_meeting_duration": 45.62, "meetings_weekend": 3.97, "emails_sent": 40.13, "emails_sent_out_of_hours": 4.94, "docs_created": 3.27, "docs_edited": 18.48, "num_meetings_no_breaks": 8.53, "emails_received": 24.22, "num_overlapping_meetings": 2.6} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 17.24, "num_events_outside_hours": 8.32, "total_meeting_hours": 25.59, "avg_meeting_duration": 111.98, "meetings_weekend": 3.65, "emails_sent": 2.18, "emails_sent_out_of_hours": 12.2, "docs_created": 12.66, "docs_edited": 16.84, "num_meetings_no_breaks": 9.0, "emails_received": 24.7, "num_overlapping_meetings": 2.7} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 1.58, "num_events_outside_hours": 9.83, "total_meeting_hours": 37.6, "avg_meeting_duration": 70.3, "meetings_weekend": 3.43, "emails_sent": 48.36, "emails_sent_out_of_hours": 10.29, "docs_created": 1.64, "docs_edited": 8.11, "num_meetings_no_breaks": 6.22, "emails_received": 16.72, "num_overlapping_meetings": 9.11} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 7.27, "num_events_outside_hours": 0.25, "total_meeting_hours": 0.61, "avg_meeting_duration": 93.2, "meetings_weekend": 0.0, "emails_sent": 28.48, "emails_sent_out_of_hours": 12.93, "docs_created": 3.98, "docs_edited": 15.13, "num_meetings_no_breaks": 3.33, "emails_received": 54.71, "num_overlapping_meetings": 9.88} }'
+# → Valor predicho por modelo local: 3
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 21.5, "num_events_outside_hours": 2.5, "total_meeting_hours": 28.31, "avg_meeting_duration": 63.5, "meetings_weekend": 3.42, "emails_sent": 4.91, "emails_sent_out_of_hours": 1.72, "docs_created": 5.61, "docs_edited": 0.91, "num_meetings_no_breaks": 0.0, "emails_received": 46.22, "num_overlapping_meetings": 1.0} }'
+# → Valor predicho por modelo local: 3
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 10.77, "num_events_outside_hours": 2.34, "total_meeting_hours": 18.72, "avg_meeting_duration": 67.16, "meetings_weekend": 0.0, "emails_sent": 26.65, "emails_sent_out_of_hours": 6.9, "docs_created": 8.6, "docs_edited": 10.67, "num_meetings_no_breaks": 4.8, "emails_received": 10.09, "num_overlapping_meetings": 2.96} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 13.05, "num_events_outside_hours": 0.1, "total_meeting_hours": 13.25, "avg_meeting_duration": 58.97, "meetings_weekend": 1.0, "emails_sent": 15.54, "emails_sent_out_of_hours": 3.96, "docs_created": 1.19, "docs_edited": 0.85, "num_meetings_no_breaks": 6.79, "emails_received": 28.45, "num_overlapping_meetings": 1.0} }'
+# → Valor predicho por modelo local: 3
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 13.15, "num_events_outside_hours": 2.25, "total_meeting_hours": 18.89, "avg_meeting_duration": 54.64, "meetings_weekend": 1.0, "emails_sent": 9.43, "emails_sent_out_of_hours": 11.58, "docs_created": 12.79, "docs_edited": 6.18, "num_meetings_no_breaks": 4.67, "emails_received": 24.92, "num_overlapping_meetings": 1.0} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 28.87, "num_events_outside_hours": 7.28, "total_meeting_hours": 28.64, "avg_meeting_duration": 111.39, "meetings_weekend": 4.53, "emails_sent": 48.63, "emails_sent_out_of_hours": 14.64, "docs_created": 10.78, "docs_edited": 16.57, "num_meetings_no_breaks": 9.24, "emails_received": 52.76, "num_overlapping_meetings": 8.24} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 4.35, "num_events_outside_hours": 2.54, "total_meeting_hours": 39.44, "avg_meeting_duration": 75.29, "meetings_weekend": 1.0, "emails_sent": 13.51, "emails_sent_out_of_hours": 4.41, "docs_created": 3.4, "docs_edited": 6.88, "num_meetings_no_breaks": 7.63, "emails_received": 34.23, "num_overlapping_meetings": 2.01} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 20.0, "num_events_outside_hours": 4.85, "total_meeting_hours": 17.45, "avg_meeting_duration": 68.8, "meetings_weekend": 1.0, "emails_sent": 27.74, "emails_sent_out_of_hours": 7.03, "docs_created": 5.27, "docs_edited": 16.03, "num_meetings_no_breaks": 3.64, "emails_received": 48.07, "num_overlapping_meetings": 2.81} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 30.12, "num_events_outside_hours": 7.1, "total_meeting_hours": 3.75, "avg_meeting_duration": 70.75, "meetings_weekend": 2.0, "emails_sent": 21.24, "emails_sent_out_of_hours": 7.79, "docs_created": 3.44, "docs_edited": 10.62, "num_meetings_no_breaks": 4.46, "emails_received": 47.14, "num_overlapping_meetings": 1.0} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 7.36, "num_events_outside_hours": 0.21, "total_meeting_hours": 6.37, "avg_meeting_duration": 40.64, "meetings_weekend": 0.0, "emails_sent": 43.23, "emails_sent_out_of_hours": 1.93, "docs_created": 3.12, "docs_edited": 2.45, "num_meetings_no_breaks": 4.97, "emails_received": 16.49, "num_overlapping_meetings": 0.0} }'
+# → Valor predicho por modelo local: 1
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 10.36, "num_events_outside_hours": 6.27, "total_meeting_hours": 22.64, "avg_meeting_duration": 49.37, "meetings_weekend": 2.0, "emails_sent": 1.72, "emails_sent_out_of_hours": 4.01, "docs_created": 14.75, "docs_edited": 1.94, "num_meetings_no_breaks": 1.05, "emails_received": 47.49, "num_overlapping_meetings": 0.0} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 8.77, "num_events_outside_hours": 0.38, "total_meeting_hours": 28.46, "avg_meeting_duration": 94.36, "meetings_weekend": 0.0, "emails_sent": 25.45, "emails_sent_out_of_hours": 6.72, "docs_created": 7.43, "docs_edited": 6.49, "num_meetings_no_breaks": 0.0, "emails_received": 4.54, "num_overlapping_meetings": 0.0} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 19.73, "num_events_outside_hours": 0.98, "total_meeting_hours": 13.11, "avg_meeting_duration": 8.14, "meetings_weekend": 2.0, "emails_sent": 22.39, "emails_sent_out_of_hours": 7.83, "docs_created": 8.16, "docs_edited": 8.42, "num_meetings_no_breaks": 7.97, "emails_received": 49.58, "num_overlapping_meetings": 8.91} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 15.57, "num_events_outside_hours": 8.64, "total_meeting_hours": 33.13, "avg_meeting_duration": 76.66, "meetings_weekend": 4.85, "emails_sent": 24.41, "emails_sent_out_of_hours": 14.1, "docs_created": 11.97, "docs_edited": 2.56, "num_meetings_no_breaks": 1.27, "emails_received": 64.03, "num_overlapping_meetings": 7.97} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 37.45, "num_events_outside_hours": 9.89, "total_meeting_hours": 39.55, "avg_meeting_duration": 63.59, "meetings_weekend": 1.0, "emails_sent": 4.68, "emails_sent_out_of_hours": 14.64, "docs_created": 13.58, "docs_edited": 19.72, "num_meetings_no_breaks": 0.0, "emails_received": 61.17, "num_overlapping_meetings": 0.0} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 10.6, "num_events_outside_hours": 2.61, "total_meeting_hours": 12.83, "avg_meeting_duration": 53.01, "meetings_weekend": 1.0, "emails_sent": 14.82, "emails_sent_out_of_hours": 4.02, "docs_created": 3.29, "docs_edited": 5.11, "num_meetings_no_breaks": 1.96, "emails_received": 27.31, "num_overlapping_meetings": 1.0} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 6.75, "num_events_outside_hours": 0.96, "total_meeting_hours": 6.34, "avg_meeting_duration": 88.18, "meetings_weekend": 0.0, "emails_sent": 13.95, "emails_sent_out_of_hours": 7.39, "docs_created": 1.41, "docs_edited": 1.47, "num_meetings_no_breaks": 0.0, "emails_received": 6.72, "num_overlapping_meetings": 1.0} }'
+# → Valor predicho por modelo local: 1
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 13.83, "num_events_outside_hours": 0.3, "total_meeting_hours": 12.54, "avg_meeting_duration": 84.93, "meetings_weekend": 3.01, "emails_sent": 15.15, "emails_sent_out_of_hours": 14.26, "docs_created": 8.0, "docs_edited": 6.58, "num_meetings_no_breaks": 2.0, "emails_received": 27.68, "num_overlapping_meetings": 0.0} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 13.14, "num_events_outside_hours": 4.82, "total_meeting_hours": 12.16, "avg_meeting_duration": 55.05, "meetings_weekend": 1.0, "emails_sent": 29.29, "emails_sent_out_of_hours": 0.21, "docs_created": 10.88, "docs_edited": 12.12, "num_meetings_no_breaks": 7.53, "emails_received": 13.32, "num_overlapping_meetings": 6.88} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 33.88, "num_events_outside_hours": 0.18, "total_meeting_hours": 11.84, "avg_meeting_duration": 99.3, "meetings_weekend": 4.98, "emails_sent": 23.16, "emails_sent_out_of_hours": 11.12, "docs_created": 8.3, "docs_edited": 2.97, "num_meetings_no_breaks": 7.82, "emails_received": 72.2, "num_overlapping_meetings": 2.82} }'
+# → Valor predicho por modelo local: 2
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 11.85, "num_events_outside_hours": 4.15, "total_meeting_hours": 16.45, "avg_meeting_duration": 69.55, "meetings_weekend": 2.0, "emails_sent": 22.54, "emails_sent_out_of_hours": 4.22, "docs_created": 14.06, "docs_edited": 13.44, "num_meetings_no_breaks": 4.26, "emails_received": 46.86, "num_overlapping_meetings": 1.0} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 7.6, "num_events_outside_hours": 6.92, "total_meeting_hours": 4.66, "avg_meeting_duration": 11.42, "meetings_weekend": 0.0, "emails_sent": 40.09, "emails_sent_out_of_hours": 1.36, "docs_created": 1.3, "docs_edited": 18.08, "num_meetings_no_breaks": 3.66, "emails_received": 8.65, "num_overlapping_meetings": 6.5} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 28.5, "num_events_outside_hours": 4.98, "total_meeting_hours": 20.69, "avg_meeting_duration": 77.96, "meetings_weekend": 0.0, "emails_sent": 16.59, "emails_sent_out_of_hours": 1.67, "docs_created": 13.09, "docs_edited": 19.2, "num_meetings_no_breaks": 6.13, "emails_received": 56.62, "num_overlapping_meetings": 8.14} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 12.03, "num_events_outside_hours": 2.14, "total_meeting_hours": 39.79, "avg_meeting_duration": 119.54, "meetings_weekend": 4.17, "emails_sent": 19.89, "emails_sent_out_of_hours": 9.4, "docs_created": 6.28, "docs_edited": 5.25, "num_meetings_no_breaks": 9.24, "emails_received": 55.25, "num_overlapping_meetings": 5.91} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 4.39, "num_events_outside_hours": 7.78, "total_meeting_hours": 5.51, "avg_meeting_duration": 26.08, "meetings_weekend": 0.0, "emails_sent": 21.88, "emails_sent_out_of_hours": 1.47, "docs_created": 1.76, "docs_edited": 6.54, "num_meetings_no_breaks": 0.0, "emails_received": 14.23, "num_overlapping_meetings": 0.0} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 23.93, "num_events_outside_hours": 2.34, "total_meeting_hours": 5.49, "avg_meeting_duration": 47.16, "meetings_weekend": 1.0, "emails_sent": 12.99, "emails_sent_out_of_hours": 4.38, "docs_created": 3.43, "docs_edited": 5.13, "num_meetings_no_breaks": 1.94, "emails_received": 30.13, "num_overlapping_meetings": 1.0} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 4.65, "num_events_outside_hours": 2.23, "total_meeting_hours": 21.73, "avg_meeting_duration": 67.03, "meetings_weekend": 0.0, "emails_sent": 44.54, "emails_sent_out_of_hours": 6.24, "docs_created": 7.55, "docs_edited": 18.45, "num_meetings_no_breaks": 1.53, "emails_received": 21.17, "num_overlapping_meetings": 4.19} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 34.17, "num_events_outside_hours": 4.96, "total_meeting_hours": 16.41, "avg_meeting_duration": 61.95, "meetings_weekend": 2.0, "emails_sent": 13.64, "emails_sent_out_of_hours": 6.73, "docs_created": 6.95, "docs_edited": 0.01, "num_meetings_no_breaks": 0.0, "emails_received": 56.54, "num_overlapping_meetings": 2.41} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 13.23, "num_events_outside_hours": 2.25, "total_meeting_hours": 12.41, "avg_meeting_duration": 49.16, "meetings_weekend": 1.0, "emails_sent": 13.71, "emails_sent_out_of_hours": 3.21, "docs_created": 3.62, "docs_edited": 4.87, "num_meetings_no_breaks": 1.79, "emails_received": 32.24, "num_overlapping_meetings": 1.0} }'
+# → Valor predicho por modelo local: 2
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 12.24, "num_events_outside_hours": 0.33, "total_meeting_hours": 12.32, "avg_meeting_duration": 25.81, "meetings_weekend": 4.83, "emails_sent": 29.33, "emails_sent_out_of_hours": 6.22, "docs_created": 10.75, "docs_edited": 18.92, "num_meetings_no_breaks": 4.38, "emails_received": 78.39, "num_overlapping_meetings": 5.57} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 13.26, "num_events_outside_hours": 4.16, "total_meeting_hours": 13.29, "avg_meeting_duration": 73.91, "meetings_weekend": 0.0, "emails_sent": 5.68, "emails_sent_out_of_hours": 0.12, "docs_created": 0.1, "docs_edited": 19.55, "num_meetings_no_breaks": 1.26, "emails_received": 18.99, "num_overlapping_meetings": 0.0} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 22.1, "num_events_outside_hours": 2.82, "total_meeting_hours": 37.48, "avg_meeting_duration": 9.34, "meetings_weekend": 2.0, "emails_sent": 11.36, "emails_sent_out_of_hours": 13.22, "docs_created": 3.54, "docs_edited": 1.18, "num_meetings_no_breaks": 3.59, "emails_received": 49.79, "num_overlapping_meetings": 2.02} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 39.83, "num_events_outside_hours": 6.86, "total_meeting_hours": 26.74, "avg_meeting_duration": 57.83, "meetings_weekend": 1.0, "emails_sent": 31.48, "emails_sent_out_of_hours": 11.75, "docs_created": 0.88, "docs_edited": 16.8, "num_meetings_no_breaks": 1.09, "emails_received": 66.16, "num_overlapping_meetings": 8.26} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 34.3, "num_events_outside_hours": 2.96, "total_meeting_hours": 36.12, "avg_meeting_duration": 73.67, "meetings_weekend": 3.95, "emails_sent": 21.16, "emails_sent_out_of_hours": 9.8, "docs_created": 1.69, "docs_edited": 4.12, "num_meetings_no_breaks": 8.07, "emails_received": 29.0, "num_overlapping_meetings": 0.0} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 13.07, "num_events_outside_hours": 2.14, "total_meeting_hours": 22.28, "avg_meeting_duration": 62.69, "meetings_weekend": 1.0, "emails_sent": 12.97, "emails_sent_out_of_hours": 3.22, "docs_created": 3.09, "docs_edited": 18.17, "num_meetings_no_breaks": 7.9, "emails_received": 21.27, "num_overlapping_meetings": 2.11} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 11.42, "num_events_outside_hours": 8.76, "total_meeting_hours": 17.98, "avg_meeting_duration": 69.74, "meetings_weekend": 1.0, "emails_sent": 8.93, "emails_sent_out_of_hours": 12.92, "docs_created": 0.25, "docs_edited": 17.74, "num_meetings_no_breaks": 0.0, "emails_received": 48.66, "num_overlapping_meetings": 2.73} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 12.8, "num_events_outside_hours": 2.47, "total_meeting_hours": 11.51, "avg_meeting_duration": 63.77, "meetings_weekend": 1.0, "emails_sent": 17.96, "emails_sent_out_of_hours": 3.9, "docs_created": 3.8, "docs_edited": 18.34, "num_meetings_no_breaks": 9.95, "emails_received": 69.09, "num_overlapping_meetings": 1.0} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 3.17, "num_events_outside_hours": 0.22, "total_meeting_hours": 6.14, "avg_meeting_duration": 113.31, "meetings_weekend": 0.0, "emails_sent": 1.14, "emails_sent_out_of_hours": 0.32, "docs_created": 3.34, "docs_edited": 15.46, "num_meetings_no_breaks": 0.0, "emails_received": 28.84, "num_overlapping_meetings": 4.85} }'
+# → Valor predicho por modelo local: 3
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 36.93, "num_events_outside_hours": 0.22, "total_meeting_hours": 12.88, "avg_meeting_duration": 26.56, "meetings_weekend": 1.0, "emails_sent": 12.56, "emails_sent_out_of_hours": 3.9, "docs_created": 1.76, "docs_edited": 2.91, "num_meetings_no_breaks": 7.92, "emails_received": 69.27, "num_overlapping_meetings": 9.97} }'
+# → Valor predicho por modelo local: 3
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 20.21, "num_events_outside_hours": 7.2, "total_meeting_hours": 31.54, "avg_meeting_duration": 46.21, "meetings_weekend": 3.4, "emails_sent": 38.43, "emails_sent_out_of_hours": 12.3, "docs_created": 12.37, "docs_edited": 18.43, "num_meetings_no_breaks": 0.0, "emails_received": 24.23, "num_overlapping_meetings": 4.19} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 29.13, "num_events_outside_hours": 0.57, "total_meeting_hours": 32.25, "avg_meeting_duration": 72.85, "meetings_weekend": 3.96, "emails_sent": 39.37, "emails_sent_out_of_hours": 13.41, "docs_created": 10.18, "docs_edited": 11.38, "num_meetings_no_breaks": 9.14, "emails_received": 69.08, "num_overlapping_meetings": 4.6} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 38.79, "num_events_outside_hours": 0.68, "total_meeting_hours": 29.44, "avg_meeting_duration": 104.85, "meetings_weekend": 1.0, "emails_sent": 8.26, "emails_sent_out_of_hours": 4.03, "docs_created": 5.21, "docs_edited": 8.09, "num_meetings_no_breaks": 1.82, "emails_received": 58.58, "num_overlapping_meetings": 0.0} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 16.93, "num_events_outside_hours": 0.39, "total_meeting_hours": 5.94, "avg_meeting_duration": 111.01, "meetings_weekend": 2.0, "emails_sent": 7.05, "emails_sent_out_of_hours": 1.19, "docs_created": 13.21, "docs_edited": 1.26, "num_meetings_no_breaks": 0.0, "emails_received": 6.6, "num_overlapping_meetings": 0.0} }'
+# → Valor predicho por modelo local: 1
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 22.09, "num_events_outside_hours": 4.5, "total_meeting_hours": 2.53, "avg_meeting_duration": 22.01, "meetings_weekend": 4.48, "emails_sent": 26.24, "emails_sent_out_of_hours": 6.1, "docs_created": 14.46, "docs_edited": 1.02, "num_meetings_no_breaks": 3.73, "emails_received": 32.73, "num_overlapping_meetings": 1.0} }'
+# → Valor predicho por modelo local: 1
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 35.8, "num_events_outside_hours": 7.52, "total_meeting_hours": 33.04, "avg_meeting_duration": 112.84, "meetings_weekend": 0.0, "emails_sent": 38.83, "emails_sent_out_of_hours": 7.32, "docs_created": 5.77, "docs_edited": 0.4, "num_meetings_no_breaks": 7.52, "emails_received": 4.78, "num_overlapping_meetings": 2.81} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 35.53, "num_events_outside_hours": 4.72, "total_meeting_hours": 20.76, "avg_meeting_duration": 109.38, "meetings_weekend": 2.0, "emails_sent": 22.75, "emails_sent_out_of_hours": 0.15, "docs_created": 3.79, "docs_edited": 5.9, "num_meetings_no_breaks": 4.96, "emails_received": 48.39, "num_overlapping_meetings": 1.0} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 12.5, "num_events_outside_hours": 2.98, "total_meeting_hours": 12.18, "avg_meeting_duration": 57.99, "meetings_weekend": 1.0, "emails_sent": 19.82, "emails_sent_out_of_hours": 4.2, "docs_created": 3.05, "docs_edited": 6.34, "num_meetings_no_breaks": 1.28, "emails_received": 32.66, "num_overlapping_meetings": 1.0} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 12.23, "num_events_outside_hours": 0.93, "total_meeting_hours": 30.88, "avg_meeting_duration": 119.13, "meetings_weekend": 0.0, "emails_sent": 47.67, "emails_sent_out_of_hours": 0.21, "docs_created": 12.88, "docs_edited": 17.02, "num_meetings_no_breaks": 1.9, "emails_received": 46.1, "num_overlapping_meetings": 2.33} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 13.23, "num_events_outside_hours": 2.45, "total_meeting_hours": 13.31, "avg_meeting_duration": 57.36, "meetings_weekend": 4.96, "emails_sent": 11.44, "emails_sent_out_of_hours": 6.38, "docs_created": 14.32, "docs_edited": 4.08, "num_meetings_no_breaks": 1.79, "emails_received": 9.94, "num_overlapping_meetings": 1.0} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 1.11, "num_events_outside_hours": 0.76, "total_meeting_hours": 0.24, "avg_meeting_duration": 22.59, "meetings_weekend": 2.0, "emails_sent": 29.17, "emails_sent_out_of_hours": 7.46, "docs_created": 13.11, "docs_edited": 2.43, "num_meetings_no_breaks": 3.78, "emails_received": 67.09, "num_overlapping_meetings": 2.28} }'
+# → Valor predicho por modelo local: 3
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 25.59, "num_events_outside_hours": 8.18, "total_meeting_hours": 35.19, "avg_meeting_duration": 104.93, "meetings_weekend": 4.93, "emails_sent": 44.65, "emails_sent_out_of_hours": 10.1, "docs_created": 12.25, "docs_edited": 15.32, "num_meetings_no_breaks": 9.09, "emails_received": 51.87, "num_overlapping_meetings": 6.43} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 12.63, "num_events_outside_hours": 0.44, "total_meeting_hours": 12.88, "avg_meeting_duration": 53.78, "meetings_weekend": 4.98, "emails_sent": 18.79, "emails_sent_out_of_hours": 3.7, "docs_created": 6.94, "docs_edited": 4.5, "num_meetings_no_breaks": 7.39, "emails_received": 46.17, "num_overlapping_meetings": 1.0} }'
+# → Valor predicho por modelo local: 3
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 26.57, "num_events_outside_hours": 0.74, "total_meeting_hours": 34.32, "avg_meeting_duration": 45.34, "meetings_weekend": 1.0, "emails_sent": 18.58, "emails_sent_out_of_hours": 1.77, "docs_created": 8.49, "docs_edited": 18.87, "num_meetings_no_breaks": 1.45, "emails_received": 71.15, "num_overlapping_meetings": 2.72} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 19.65, "num_events_outside_hours": 4.55, "total_meeting_hours": 12.31, "avg_meeting_duration": 27.91, "meetings_weekend": 2.0, "emails_sent": 24.47, "emails_sent_out_of_hours": 6.42, "docs_created": 13.68, "docs_edited": 13.04, "num_meetings_no_breaks": 3.76, "emails_received": 28.16, "num_overlapping_meetings": 2.33} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 7.75, "num_events_outside_hours": 4.36, "total_meeting_hours": 13.54, "avg_meeting_duration": 51.9, "meetings_weekend": 1.0, "emails_sent": 23.83, "emails_sent_out_of_hours": 0.62, "docs_created": 3.81, "docs_edited": 2.48, "num_meetings_no_breaks": 1.45, "emails_received": 4.56, "num_overlapping_meetings": 1.0} }'
+# → Valor predicho por modelo local: 3
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 8.7, "num_events_outside_hours": 2.61, "total_meeting_hours": 18.38, "avg_meeting_duration": 118.14, "meetings_weekend": 1.0, "emails_sent": 18.53, "emails_sent_out_of_hours": 3.93, "docs_created": 1.28, "docs_edited": 10.39, "num_meetings_no_breaks": 1.58, "emails_received": 24.59, "num_overlapping_meetings": 0.0} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 35.6, "num_events_outside_hours": 0.04, "total_meeting_hours": 32.79, "avg_meeting_duration": 73.74, "meetings_weekend": 1.0, "emails_sent": 47.44, "emails_sent_out_of_hours": 13.1, "docs_created": 13.89, "docs_edited": 11.92, "num_meetings_no_breaks": 3.65, "emails_received": 74.13, "num_overlapping_meetings": 8.63} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 4.0, "num_events_outside_hours": 0.65, "total_meeting_hours": 3.47, "avg_meeting_duration": 18.22, "meetings_weekend": 3.04, "emails_sent": 5.3, "emails_sent_out_of_hours": 0.37, "docs_created": 10.46, "docs_edited": 5.21, "num_meetings_no_breaks": 1.61, "emails_received": 22.42, "num_overlapping_meetings": 2.79} }'
+# → Valor predicho por modelo local: 1
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 27.61, "num_events_outside_hours": 4.19, "total_meeting_hours": 34.72, "avg_meeting_duration": 94.97, "meetings_weekend": 2.0, "emails_sent": 35.22, "emails_sent_out_of_hours": 9.27, "docs_created": 3.02, "docs_edited": 16.49, "num_meetings_no_breaks": 7.78, "emails_received": 22.87, "num_overlapping_meetings": 9.52} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 23.06, "num_events_outside_hours": 4.05, "total_meeting_hours": 23.22, "avg_meeting_duration": 66.99, "meetings_weekend": 1.0, "emails_sent": 4.85, "emails_sent_out_of_hours": 6.86, "docs_created": 1.4, "docs_edited": 11.36, "num_meetings_no_breaks": 3.17, "emails_received": 49.89, "num_overlapping_meetings": 1.0} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 10.85, "num_events_outside_hours": 2.08, "total_meeting_hours": 11.41, "avg_meeting_duration": 53.52, "meetings_weekend": 2.0, "emails_sent": 19.93, "emails_sent_out_of_hours": 10.75, "docs_created": 7.6, "docs_edited": 4.08, "num_meetings_no_breaks": 1.78, "emails_received": 11.58, "num_overlapping_meetings": 1.0} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 26.0, "num_events_outside_hours": 4.56, "total_meeting_hours": 39.47, "avg_meeting_duration": 76.69, "meetings_weekend": 4.71, "emails_sent": 13.11, "emails_sent_out_of_hours": 10.29, "docs_created": 13.72, "docs_edited": 18.97, "num_meetings_no_breaks": 6.24, "emails_received": 67.05, "num_overlapping_meetings": 4.42} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 10.31, "num_events_outside_hours": 4.95, "total_meeting_hours": 15.01, "avg_meeting_duration": 60.89, "meetings_weekend": 0.0, "emails_sent": 23.78, "emails_sent_out_of_hours": 6.44, "docs_created": 1.66, "docs_edited": 15.61, "num_meetings_no_breaks": 6.08, "emails_received": 46.9, "num_overlapping_meetings": 2.68} }'
+# → Valor predicho por modelo local: 0
+
+curl -X POST http://127.0.0.1:8000/predict \
+-H "Content-Type: application/json" \
+-d '{"features": {"num_events": 22.94, "num_events_outside_hours": 7.67, "total_meeting_hours": 3.57, "avg_meeting_duration": 64.09, "meetings_weekend": 0.0, "emails_sent": 5.14, "emails_sent_out_of_hours": 3.36, "docs_created": 0.4, "docs_edited": 2.95, "num_meetings_no_breaks": 0.0, "emails_received": 3.21, "num_overlapping_meetings": 0.0} }'
+# → Valor predicho por modelo local: 3
+

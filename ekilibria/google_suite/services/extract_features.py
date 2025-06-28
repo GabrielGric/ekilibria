@@ -74,7 +74,7 @@ def extract_calendar_features(token_file, fecha_desde, fecha_hasta, hora_inicio_
     start_time = fecha_desde.replace(hour=0, minute=0, second=0, microsecond=0).isoformat() + 'Z'
     end_time = (fecha_hasta + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0).isoformat() + 'Z'
 
-    print(f"\n🔎 Querying events from {start_time} to {end_time}\n")
+    # print(f"\n🔎 Querying events from {start_time} to {end_time}\n")
 
     # Obtener eventos
     events_result = service.events().list(
@@ -86,7 +86,7 @@ def extract_calendar_features(token_file, fecha_desde, fecha_hasta, hora_inicio_
     ).execute()
 
     events = events_result.get('items', [])
-    print(f"📒 Total events fetched from calendar: {len(events)}")
+    # print(f"📒 Total events fetched from calendar: {len(events)}")
 
     # Inicializar variables
     num_events = 0
@@ -125,7 +125,7 @@ def extract_calendar_features(token_file, fecha_desde, fecha_hasta, hora_inicio_
 
             parsed_events.append((start_dt, end_dt))
 
-            print(f"🗓️ Event: {event.get('summary', 'Sin título')} | Start: {start_dt} | End: {end_dt}")
+            # print(f"🗓️ Event: {event.get('summary', 'Sin título')} | Start: {start_dt} | End: {end_dt}")
         except Exception as e:
             print(f"⚠️ Error procesando evento: {e}")
             continue
@@ -147,7 +147,7 @@ def extract_calendar_features(token_file, fecha_desde, fecha_hasta, hora_inicio_
 
     return {
         'num_events': num_events,
-        'events_out_of_hours': events_out_of_hours,
+        'num_events_outside_hours': events_out_of_hours,
         'total_meeting_hours': round(total_meeting_hours, 2),
         'avg_meeting_duration': round(avg_meeting_duration, 2),
         'meetings_weekend': meetings_weekend,
@@ -172,7 +172,7 @@ def extract_drive_features(token_file, fecha_desde, fecha_hasta):
     time_min = fecha_desde.isoformat()
     time_max = fecha_hasta.isoformat()
 
-    print(f"🔍 Querying Drive files from {time_min} to {time_max}")
+    # print(f"🔍 Querying Drive files from {time_min} to {time_max}")
 
     # Obtener información del usuario autenticado
     user_info = service.about().get(fields="user(emailAddress)").execute()
@@ -205,9 +205,9 @@ def extract_drive_features(token_file, fecha_desde, fecha_hasta):
             if not (created >= time_min and created < time_max and owner_email == user_email):
                 archivos_editados.append(file['name'])
 
-    print(f"📂 Analizando actividad del usuario: {user_email}")
-    print(f"🆕 Archivos creados por el usuario: {archivos_creados}")
-    print(f"✏️ Archivos editados por el usuario: {archivos_editados}")
+    # print(f"📂 Analizando actividad del usuario: {user_email}")
+    # print(f"🆕 Archivos creados por el usuario: {archivos_creados}")
+    # print(f"✏️ Archivos editados por el usuario: {archivos_editados}")
 
     return {
         'docs_created': len(archivos_creados),
@@ -221,12 +221,45 @@ def extract_all_features(token_file, fecha_desde, fecha_hasta):
     features.update(extract_drive_features(token_file, fecha_desde, fecha_hasta))
     return features
 
+def save_features_to_json(result: dict, token_file: str, fecha_desde: datetime, fecha_hasta: datetime) -> str:
+    output_data = {
+        "generated_at": datetime.now().isoformat(),
+        "fecha_desde": fecha_desde.isoformat(),
+        "fecha_hasta": fecha_hasta.isoformat(),
+        "features": result
+    }
+
+    user_email = os.path.basename(token_file).replace("token_", "").replace(".json", "")
+    output_filename = f"features_{user_email}_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.json"
+    output_path = os.path.join("ekilibria", "google_suite", "services", "users_features", output_filename)
+
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(output_data, f, indent=2, ensure_ascii=False)
+
+    print(f"✅ Archivo guardado en: {output_path}")
+    return output_path
+
+def load_only_week_features(json_path: str) -> dict:
+    with open(json_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    return data["features"]
+
 
 if __name__ == "__main__":
+    # fecha_desde = datetime(2025, 6, 16)
+    # fecha_hasta = datetime(2025, 6, 25)
+
+    from argparse import ArgumentParser
     token_file = os.path.abspath(os.path.join(TOKEN_DIR, TOKEN_FILENAME))
 
-    fecha_desde = datetime(2025, 6, 16)
-    fecha_hasta = datetime(2025, 6, 25)
+
+    parser = ArgumentParser()
+    parser.add_argument("--from", dest="fecha_desde", help="Fecha desde (YYYY-MM-DD)", required=False)
+    parser.add_argument("--to", dest="fecha_hasta", help="Fecha hasta (YYYY-MM-DD)", required=False)
+    args = parser.parse_args()
+
+    fecha_desde = datetime.fromisoformat(args.fecha_desde) if args.fecha_desde else datetime(2025, 6, 16)
+    fecha_hasta = datetime.fromisoformat(args.fecha_hasta) if args.fecha_hasta else datetime(2025, 6, 25)
 
     # result_mail = extract_email_features(token_file, fecha_desde, fecha_hasta)
     # result_calendar = extract_calendar_features(token_file, fecha_desde, fecha_hasta)
@@ -236,5 +269,7 @@ if __name__ == "__main__":
     # print(result_drive)
 
     result = extract_all_features(token_file, fecha_desde, fecha_hasta)
-    # print(result)
-    print(json.dumps(result, indent=2, ensure_ascii=False))
+    # # print(result)
+    # print(json.dumps(result, indent=2, ensure_ascii=False))
+
+    save_features_to_json(result, token_file, fecha_desde, fecha_hasta)
