@@ -11,7 +11,7 @@ st.title("🧠 Predicción del tipo de semana")
 st.write("Esta app predice tu tipo de semana en base a tu actividad digital.")
 
 # Autenticación
-st.subheader("🔐 Paso 1: Autenticar con Google")
+st.subheader("🔐 Paso 1: Autenticar con Google Suite o Microsoft Suite")
 
 if st.button("Autenticar"):
     try:

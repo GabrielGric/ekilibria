@@ -88,19 +88,38 @@ CLASS_THRESHOLDS = {
 # PESOS PARA BURNOUT INDEX
 # ========================
 
+# FEATURE_WEIGHTS = {
+#     "num_events": 0.7,
+#     "num_events_outside_hours": 1.2,
+#     "total_meeting_hours": 1.0,
+#     "avg_meeting_duration": 0.5,
+#     "meetings_weekend": 1.0,
+#     "emails_sent": 0.8,
+#     "emails_sent_out_of_hours": 1.3,
+#     "docs_created": 0.6,
+#     "docs_edited": 0.6,
+#     "num_meetings_no_breaks": 1.0,
+#     "emails_received": 0.7,
+#     "num_overlapping_meetings": 1.1
+# }
+
+# Nuevo diccionario de pesos el valor total es 10.0
+# Cada feature tiene un peso que refleja su impacto relativo en el índice de burnout
+# Los pesos están normalizados para que la suma total sea 10.0
+# Estos valores son arbitrarios y pueden ajustarse según la importancia relativa de cada feature.
 FEATURE_WEIGHTS = {
-    "num_events": 0.7,
-    "num_events_outside_hours": 1.2,
-    "total_meeting_hours": 1.0,
-    "avg_meeting_duration": 0.5,
-    "meetings_weekend": 1.0,
-    "emails_sent": 0.8,
-    "emails_sent_out_of_hours": 1.3,
-    "docs_created": 0.6,
-    "docs_edited": 0.6,
-    "num_meetings_no_breaks": 1.0,
-    "emails_received": 0.7,
-    "num_overlapping_meetings": 1.1
+    "meetings_weekend": 5.002,
+    "num_events_outside_hours": 2.501,
+    "emails_sent_out_of_hours": 1.25,
+    "num_overlapping_meetings": 0.625,
+    "num_meetings_no_breaks": 0.313,
+    "num_events": 0.156,
+    "emails_received": 0.078,
+    "emails_sent": 0.039,
+    "total_meeting_hours": 0.020,
+    "avg_meeting_duration": 0.010,
+    "docs_edited": 0.005,
+    "docs_created": 0.002
 }
 
 CLASS_INDEX_RANGES = {
@@ -118,28 +137,92 @@ def sample_feature(feature, week_type):
     lo, hi = CLASS_THRESHOLDS[week_type][feature]
     return round(random.uniform(lo, hi), 2)
 
+# def determine_week_type_from_features(row):
+#     counts = {key: 0 for key in CLASS_THRESHOLDS.keys()}
+#     for feature, value in row.items():
+#         for week_type, thresholds in CLASS_THRESHOLDS.items():
+#             lo, hi = thresholds[feature]
+#             if lo <= value <= hi:
+#                 counts[week_type] += 1
+#                 break
+#     return random.choices(list(counts.keys()), weights=[counts[k] for k in counts])[0]
+
 def determine_week_type_from_features(row):
-    counts = {key: 0 for key in CLASS_THRESHOLDS.keys()}
+    scores = {key: {"count": 0, "weight_sum": 0.0} for key in CLASS_THRESHOLDS.keys()}
+
     for feature, value in row.items():
         for week_type, thresholds in CLASS_THRESHOLDS.items():
             lo, hi = thresholds[feature]
             if lo <= value <= hi:
-                counts[week_type] += 1
+                scores[week_type]["count"] += 1
+                scores[week_type]["weight_sum"] += FEATURE_WEIGHTS.get(feature, 0.0)
                 break
-    return random.choices(list(counts.keys()), weights=[counts[k] for k in counts])[0]
+
+    # Calcular score final como cantidad * suma de pesos
+    final_scores = {
+        k: v["count"] * v["weight_sum"]
+        for k, v in scores.items()
+    }
+
+    return random.choices(
+        population=list(final_scores.keys()),
+        weights=list(final_scores.values()),
+        k=1
+    )[0]
+
+# def calculate_burnout_index(row, week_type, mode):
+#     lo, hi = CLASS_INDEX_RANGES[week_type]
+#     if mode == "deterministic":
+#         return round(random.uniform(lo, hi), 2)
+#     elif mode == "formula":
+#         max_weights = sum(FEATURE_WEIGHTS.values())
+#         norm = sum(min(row[f]/(CLASS_THRESHOLDS["semana_agotamiento_extremo"][f][1] or 1), 1) * w
+#                    for f, w in FEATURE_WEIGHTS.items()) / max_weights
+#         noise = np.random.normal(loc=0.0, scale=0.2)
+#         return round(min(max(lo, norm * (hi - lo) + lo + noise), hi), 2)
+#     elif mode == "random":
+#         return round(random.uniform(lo, hi), 2)
 
 def calculate_burnout_index(row, week_type, mode):
+    """
+    Calcula el índice de burnout en función del tipo de semana y el modo de cálculo seleccionado.
+
+    Parámetros:
+    - row: dict con las features para una semana.
+    - week_type: tipo de semana (clave de CLASS_INDEX_RANGES).
+    - mode: puede ser 'deterministic', 'deterministic_con_ruido' o 'random'.
+
+    Retorna:
+    - Índice de burnout (float redondeado a 2 decimales), siempre dentro del rango correspondiente al tipo de semana.
+    """
+
     lo, hi = CLASS_INDEX_RANGES[week_type]
+
     if mode == "deterministic":
-        return round(random.uniform(lo, hi), 2)
-    elif mode == "formula":
+        # Calcula un índice proporcional sin ruido
         max_weights = sum(FEATURE_WEIGHTS.values())
-        norm = sum(min(row[f]/(CLASS_THRESHOLDS["semana_agotamiento_extremo"][f][1] or 1), 1) * w
-                   for f, w in FEATURE_WEIGHTS.items()) / max_weights
+        norm = sum(
+            min(row[f] / (CLASS_THRESHOLDS["semana_agotamiento_extremo"][f][1] or 1), 1) * w
+            for f, w in FEATURE_WEIGHTS.items()
+        ) / max_weights
+        return round(min(max(lo, norm * (hi - lo) + lo), hi), 2)
+
+    elif mode == "deterministic_con_ruido":
+        # Igual que el modo determinista pero agrega ruido gaussiano
+        max_weights = sum(FEATURE_WEIGHTS.values())
+        norm = sum(
+            min(row[f] / (CLASS_THRESHOLDS["semana_agotamiento_extremo"][f][1] or 1), 1) * w
+            for f, w in FEATURE_WEIGHTS.items()
+        ) / max_weights
         noise = np.random.normal(loc=0.0, scale=0.2)
         return round(min(max(lo, norm * (hi - lo) + lo + noise), hi), 2)
+
     elif mode == "random":
+        # Elige un valor aleatorio dentro del rango correspondiente al tipo de semana
         return round(random.uniform(lo, hi), 2)
+
+    else:
+        raise ValueError(f"Modo de cálculo desconocido: '{mode}'")
 
 # ========================
 # GENERACIÓN DE FILAS
@@ -167,7 +250,7 @@ def generate_rows():
             final_week = base_type
 
         # Burnout index con modo aleatorio controlado
-        mode = random.choices(["deterministic", "formula", "random"], weights=[0.1, 0.6, 0.3])[0]
+        mode = random.choices(["deterministic", "deterministic_con_ruido", "random"], weights=[0.1, 0.6, 0.3])[0]
         burnout_index = calculate_burnout_index(features, final_week, mode)
 
         row = features.copy()
