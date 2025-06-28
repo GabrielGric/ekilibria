@@ -6,6 +6,8 @@ from ekilibria.google_suite.services.extract_features import extract_all_feature
 from ekilibria.google_suite.auth.authenticate_google_user import authenticate_google_user
 from ekilibria.google_suite.services.extract_features import save_features_to_json
 from ekilibria.google_suite.services.extract_features import load_only_week_features
+from ekilibria.microsoft_suite.api_microsoft_org import get_microsoft_graph_api_token
+from ekilibria.microsoft_suite.time_zones import build_windows_to_iana_map
 
 st.title("🧠 Predicción del tipo de semana")
 st.write("Esta app predice tu tipo de semana en base a tu actividad digital.")
@@ -13,7 +15,7 @@ st.write("Esta app predice tu tipo de semana en base a tu actividad digital.")
 # Autenticación
 st.subheader("🔐 Paso 1: Autenticar con Google Suite o Microsoft Suite")
 
-if st.button("Autenticar"):
+if st.button("Autenticar con Google Suite"):
     try:
         token_path, user_email = authenticate_google_user() # Esta función debe abrir el navegador y guardar el token
         st.session_state.token_path = token_path
@@ -21,6 +23,16 @@ if st.button("Autenticar"):
         st.success(f"✅ Usuario autenticado: {user_email}")
     except Exception as e:
         st.error(f"❌ Error en la autenticación: {e}")
+
+if st.button("Autenticar con Microsoft Suite"):
+    try:
+        client = get_microsoft_graph_api_token()
+        st.success({client})
+        st.session_state.client = client
+        st.success(f"✅ Usuario autenticado con Microsoft Suite")
+    except Exception as e:
+        st.error(f"❌ Error en la autenticación: {e}")
+
 
 # Paso 2: Predicción
 st.subheader("🧠 Paso 2: Calcular tipo de semana")
