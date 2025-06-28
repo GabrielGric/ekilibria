@@ -84,8 +84,9 @@ async def get_mails(client, user_time_zone,iana_time_zone,from_date, to_date, fo
                     working_hours_count += 1
 
     if folder == "Inbox":
+        ## Average emails received per day
         result = {
-            "emails_received": total_emails
+            "emails_received": total_emails/ 7,  # Assuming the week starts on Monday and ends on Sunday
         }
     else:
         result = {
