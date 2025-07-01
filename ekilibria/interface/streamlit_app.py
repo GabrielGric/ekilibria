@@ -6,8 +6,8 @@ from ekilibria.google_suite.services.extract_features import extract_all_feature
 from ekilibria.google_suite.auth.authenticate_google_user import authenticate_google_user
 from ekilibria.google_suite.services.extract_features import save_features_to_json
 from ekilibria.google_suite.services.extract_features import load_only_week_features
-from ekilibria.microsoft_suite.api_microsoft_org import get_microsoft_graph_api_token
-from ekilibria.microsoft_suite.time_zones import build_windows_to_iana_map
+# from ekilibria.microsoft_suite.api_microsoft_org import get_microsoft_graph_api_token
+# from ekilibria.microsoft_suite.time_zones import build_windows_to_iana_map
 
 st.title("🧠 Predicción del tipo de semana")
 st.write("Esta app predice tu tipo de semana en base a tu actividad digital.")
@@ -26,9 +26,9 @@ if st.button("Autenticar con Google Suite"):
 
 if st.button("Autenticar con Microsoft Suite"):
     try:
-        client = get_microsoft_graph_api_token()
-        st.success({client})
-        st.session_state.client = client
+        # client = get_microsoft_graph_api_token()
+        # st.success({client})
+        # st.session_state.client = client
         st.success(f"✅ Usuario autenticado con Microsoft Suite")
     except Exception as e:
         st.error(f"❌ Error en la autenticación: {e}")
@@ -77,23 +77,32 @@ if st.button("Calcular tipo de semana"):
 
             st.write("Payload enviado a FastAPI:", json)
 
+            ######### prueba
             response = requests.post("http://127.0.0.1:8000/predict", json=json)
 
             if response.status_code == 200:
-                st.write("Respuesta completa:", response.json())
-                pred = response.json()["week_type"]
-               # st.success(f"🧠 Tipo de semana: {pred}")
+                data = response.json()
+                st.write("Respuesta completa:", data)
 
-                # Mapeo de etiquetas
+                # 🔹 Extraer ambos valores
+                week_type = data["week_type"]
+                burnout_index = data["burnout_index"]
+
+                # 🔹 Mapeo de etiquetas
                 labels = {
                     0: "Semana saludable 🌱",
                     1: "Carga aceptable ⚖️",
                     2: "Carga excesiva 🚨",
                     3: "Riesgo de burnout 🔥"
                 }
-                st.success(f"🧠 Tipo de semana: {labels.get(pred, 'Desconocido')}")
+
+                # 🔹 Mostrar resultados
+                st.success(f"🧠 Tipo de semana: {labels.get(week_type, 'Desconocido')}")
+                st.success(f"💢 Burnout index estimado: {burnout_index:.2f}")
+
             else:
                 st.error("❌ Error al predecir con FastAPI")
+            ######### fin de prueba
 
     except Exception as e:
         st.error(f"❌ Error: {e}")
