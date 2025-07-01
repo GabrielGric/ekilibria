@@ -1,6 +1,6 @@
 import asyncio
 import os
-from time_zones import build_windows_to_iana_map
+from utils import build_windows_to_iana_map
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 from azure.identity import AuthenticationRecord, InteractiveBrowserCredential, TokenCachePersistenceOptions
@@ -15,7 +15,9 @@ from msgraph import GraphServiceClient
 
 CLIENT_ID_MICROSOFT = os.getenv("CLIENT_ID_MICROSOFT")
 
-def get_microsoft_graph_api_token(client_id):
+async def get_microsoft_graph_api_token(client_id = None):
+
+    client_id = os.getenv("CLIENT_ID_MICROSOFT")
 
 
     credential = InteractiveBrowserCredential(
@@ -24,11 +26,19 @@ def get_microsoft_graph_api_token(client_id):
         enable_support_logging=True
         )
 
-    print("\nCompleted request with first credential")
-    scopes = ["User.Read"]
-    client = GraphServiceClient(credentials=credential, scopes=scopes)
+    #scopes = "User.Read"
+    #credential.get_token(scopes)
+    client = GraphServiceClient(credentials=credential)
 
-    return client
+    # Get user email
+    try:
+        user = await client.me.get()
+        print(f"Authenticated as: {user.display_name} ({user.mail})")
+    except Exception as e:
+        print(f"❌ Error fetching user information: {e}")
+        return None
+
+    return user, client
 
 # Get the user's working hours and time zone
 async def user(client):
@@ -62,10 +72,6 @@ async def get_mails(client, user_time_zone,iana_time_zone,from_date, to_date, fo
     )
 
     messages_response = await client.me.mail_folders.by_mail_folder_id(folder).messages.get(request_configuration=request_configuration)
-
-    if not messages_response.value:
-        print(f"No messages found in the {folder} folder for the specified date range.")
-        return []
 
     # Set default value for working_hours
     total_emails = len(messages_response.value)
@@ -180,7 +186,7 @@ async def get_events(client, user_time_zone, iana_time_zone, from_date, to_date)
         "num_events_outside_hours": events_outside_working_hours,
         "total_meeting_hours": total_duration_hours,
         "avg_meeting_duration" : total_duration_hours / total_events if total_events > 0 else 0,
-        "meetings_weekend ": events_weekend,
+        "meetings_weekend": events_weekend,
         "num_meetings_no_breaks": meetings_without_breaks,
         "num_overlapping_meetings": overlapping_meetings
     }
@@ -279,10 +285,13 @@ async def get_data(client):
     result.update(events)
     result.update(files)
 
-    print("\nResults:")
-    for key, value in result.items():
-        print(f"{key}: {value}")
+    return result
 
+async def login_microsoft(client_id=None):
+    client = get_microsoft_graph_api_token(client_id)
+    users = await user(client)
+
+    return users, client
 
 # Main function to run the script
 async def main():
@@ -324,4 +333,7 @@ async def main():
         print(f"{key}: {value}")
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    #asyncio.run(main())
+    client = get_microsoft_graph_api_token(CLIENT_ID_MICROSOFT)
+    data = asyncio.run(get_data(client))
+    print(data)
