@@ -119,6 +119,7 @@ if st.button("Calcular tipo de semana"):
 
             st.write("Payload enviado a FastAPI:", json)
 
+            ######### prueba
             response = requests.post("http://127.0.0.1:8000/predict", json=json)
 
             if response.status_code == 200:
@@ -126,16 +127,25 @@ if st.button("Calcular tipo de semana"):
                 pred = response.json()["week_type"]
             # st.success(f"🧠 Tipo de semana: {pred}")
 
-                # Mapeo de etiquetas
+                # 🔹 Extraer ambos valores
+                week_type = pred["week_type"]
+                burnout_index = pred["burnout_index"]
+
+                # 🔹 Mapeo de etiquetas
                 labels = {
                     0: "Semana saludable 🌱",
                     1: "Carga aceptable ⚖️",
                     2: "Carga excesiva 🚨",
                     3: "Riesgo de burnout 🔥"
                 }
-                st.success(f"🧠 Tipo de semana: {labels.get(pred, 'Desconocido')}")
+
+                # 🔹 Mostrar resultados
+                st.success(f"🧠 Tipo de semana: {labels.get(week_type, 'Desconocido')}")
+                st.success(f"💢 Burnout index estimado: {burnout_index:.2f}")
+
             else:
                 st.error("❌ Error al predecir con FastAPI")
+            ######### fin de prueba
 
 
         except Exception as e:

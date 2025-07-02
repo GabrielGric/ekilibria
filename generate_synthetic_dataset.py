@@ -128,6 +128,13 @@ CLASS_INDEX_RANGES = {
     "semana_carga_excesiva": (5.1, 7.5),
     "semana_agotamiento_extremo": (7.6, 10.0)
 }
+# ✅ NUEVO: codificación numérica de la clase
+week_code_mapping = {
+    "semana_saludable": 0,
+    "semana_carga_aceptable": 1,
+    "semana_carga_excesiva": 2,
+    "semana_agotamiento_extremo": 3
+}
 
 # ========================
 # FUNCIONES
@@ -256,6 +263,7 @@ def generate_rows():
         row = features.copy()
         row["tipo_de_semana"] = final_week
         row["burnout_index"] = burnout_index
+        row["week_code"] = week_code_mapping[final_week]
         rows.append(row)
     return rows
 
