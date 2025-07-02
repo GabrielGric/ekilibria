@@ -90,7 +90,6 @@ if st.button("Calcular tipo de semana"):
                 if response.status_code == 200:
                     st.write("Respuesta completa:", response.json())
                     pred = response.json()["week_type"]
-                # st.success(f"🧠 Tipo de semana: {pred}")
 
                     # Mapeo de etiquetas
                     labels = {
@@ -125,11 +124,10 @@ if st.button("Calcular tipo de semana"):
             if response.status_code == 200:
                 st.write("Respuesta completa:", response.json())
                 pred = response.json()["week_type"]
-            # st.success(f"🧠 Tipo de semana: {pred}")
 
                 # 🔹 Extraer ambos valores
-                week_type = pred["week_type"]
-                burnout_index = pred["burnout_index"]
+                # week_type = pred["week_type"]
+                # burnout_index = pred["burnout_index"]
 
                 # 🔹 Mapeo de etiquetas
                 labels = {
@@ -140,9 +138,9 @@ if st.button("Calcular tipo de semana"):
                 }
 
                 # 🔹 Mostrar resultados
-                st.success(f"🧠 Tipo de semana: {labels.get(week_type, 'Desconocido')}")
-                st.success(f"💢 Burnout index estimado: {burnout_index:.2f}")
-
+                # st.success(f"🧠 Tipo de semana: {labels.get(week_type, 'Desconocido')}")
+                # st.success(f"💢 Burnout index estimado: {burnout_index:.2f}")
+                st.success(f"🧠 Tipo de semana: {labels.get(pred, 'Desconocido')}")
             else:
                 st.error("❌ Error al predecir con FastAPI")
             ######### fin de prueba
