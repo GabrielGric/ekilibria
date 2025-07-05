@@ -3,6 +3,8 @@ from datetime import datetime, timedelta, timezone
 
 from googleapiclient.discovery import build
 
+from ekilibria.utils import get_last_n_weeks_range
+
 from dotenv import load_dotenv
 import json
 import os
@@ -220,6 +222,33 @@ def extract_all_features(token_file, fecha_desde, fecha_hasta):
     features.update(extract_calendar_features(token_file, fecha_desde, fecha_hasta))
     features.update(extract_drive_features(token_file, fecha_desde, fecha_hasta))
     return features
+
+
+import streamlit as st
+from datetime import datetime
+
+def extract_last_n_weeks_features(token_file, n=4):
+    resultados = []
+    week_ranges = get_last_n_weeks_range(n=n)
+
+    for i, (fecha_desde, fecha_hasta) in enumerate(week_ranges):
+        st.write(f"🗓️ Semana {i+1}: desde {fecha_desde} hasta {fecha_hasta}")
+
+        features = extract_all_features(
+            token_file,
+            fecha_desde=datetime.combine(fecha_desde, datetime.min.time()),
+            fecha_hasta=datetime.combine(fecha_hasta, datetime.max.time())
+        )
+
+        features['fecha_desde'] = str(fecha_desde)
+        features['fecha_hasta'] = str(fecha_hasta)
+
+        st.write("✅ Features extraídos:", features)
+
+        resultados.append(features)
+
+    return resultados
+
 
 def save_features_to_json(result: dict, token_file: str, fecha_desde: datetime, fecha_hasta: datetime) -> str:
     output_data = {

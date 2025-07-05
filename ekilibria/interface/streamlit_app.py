@@ -8,6 +8,8 @@ from ekilibria.google_suite.auth.authenticate_google_user import authenticate_go
 from ekilibria.google_suite.services.extract_features import save_features_to_json
 from ekilibria.google_suite.services.extract_features import load_only_week_features
 from ekilibria.microsoft_suite.api_microsoft_org import get_microsoft_graph_api_token, get_data
+from ekilibria.microsoft_suite.time_zones import build_windows_to_iana_map
+from ekilibria.google_suite.services.extract_features import extract_last_n_weeks_features
 
 st.title("🧠 Predicción del tipo de semana")
 st.write("Esta app predice tu tipo de semana en base a tu actividad digital.")
@@ -43,11 +45,11 @@ if st.button("Autenticar con Microsoft Suite"):
 # Paso 2: Predicción
 st.subheader("🧠 Paso 2: Calcular tipo de semana")
 
-col1, col2 = st.columns(2)
-with col1:
-    fecha_desde = st.date_input("Desde", datetime.date.today())
-with col2:
-    fecha_hasta = st.date_input("Hasta", datetime.date.today())
+# col1, col2 = st.columns(2)
+# with col1:
+# fecha_desde = st.date_input("Desde", datetime.date.today())
+# # with col2:
+# fecha_hasta = st.date_input("Hasta", datetime.date.today())
 
 
 if st.button("Calcular tipo de semana"):
@@ -61,43 +63,47 @@ if st.button("Calcular tipo de semana"):
                 user_email = st.session_state.user_email
 
                 # Convertir date → datetime
-                fecha_desde = datetime.datetime.combine(fecha_desde, datetime.time.min)
-                fecha_hasta = datetime.datetime.combine(fecha_hasta, datetime.time.min)
+                # fecha_desde = datetime.datetime.combine(fecha_desde, datetime.time.min)
+                # fecha_hasta = datetime.datetime.combine(fecha_hasta, datetime.time.min)
 
                 st.write("token_path", token_path)
-                st.write("fecha_desde", fecha_desde)
-                st.write("fecha_hasta", fecha_hasta)
+                # st.write("fecha_desde", fecha_desde)
+                # st.write("fecha_hasta", fecha_hasta)
 
                 # 1. Extraer todos los features
-                result = extract_all_features(token_path, fecha_desde, fecha_hasta)
-                st.write("Resultado de extract_all_features", result)
+                #  result = extract_all_features(token_path, fecha_desde, fecha_hasta)
 
-                # 2. Guardar JSON completo
-                json_path = save_features_to_json(result, token_path, fecha_desde, fecha_hasta)
-                st.success(f"✅ JSON guardado en: {json_path}")
+                cant_semanas = 52
+                result = extract_last_n_weeks_features(token_path, cant_semanas) # 1 = última semana
 
-                # 3. Cargar solo los 12 features requeridos para predicción
-                st.write("json_path", json_path)
-                features = load_only_week_features(json_path)
+                st.write(f"Resultado de extract_last_n_weeks_features para {cant_semanas} semana")
 
-                json = {"features": features}
+                # # 2. Guardar JSON completo
+                # json_path = save_features_to_json(result, token_path, fecha_desde, fecha_hasta)
+                # st.success(f"✅ JSON guardado en: {json_path}")
+
+                # # 3. Cargar solo los 12 features requeridos para predicción
+                # st.write("json_path", json_path)
+                # features = load_only_week_features(json_path)
+
+                json = {"features": result}
 
                 st.write("Payload enviado a FastAPI:", json)
 
-                response = requests.post("http://127.0.0.1:8000/predict", json=json)
+                response = requests.post("http://127.0.0.1:8000/predict_new", json=json)
 
                 if response.status_code == 200:
                     st.write("Respuesta completa:", response.json())
-                    pred = response.json()["week_type"]
+                    # pred = response.json()["week_type"]
 
-                    # Mapeo de etiquetas
-                    labels = {
-                        0: "Semana saludable 🌱",
-                        1: "Carga aceptable ⚖️",
-                        2: "Carga excesiva 🚨",
-                        3: "Riesgo de burnout 🔥"
-                    }
-                    st.success(f"🧠 Tipo de semana: {labels.get(pred, 'Desconocido')}")
+                    # # Mapeo de etiquetas
+                    # labels = {
+                    #     0: "Semana saludable 🌱",
+                    #     1: "Carga aceptable ⚖️",
+                    #     2: "Carga excesiva 🚨",
+                    #     3: "Riesgo de burnout 🔥"
+                    # }
+                    # st.success(f"🧠 Tipo de semana: {labels.get(pred, 'Desconocido')}")
                 else:
                     st.error("❌ Error al predecir con FastAPI")
 
