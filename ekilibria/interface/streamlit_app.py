@@ -8,7 +8,6 @@ from ekilibria.google_suite.auth.authenticate_google_user import authenticate_go
 from ekilibria.google_suite.services.extract_features import save_features_to_json
 from ekilibria.google_suite.services.extract_features import load_only_week_features
 from ekilibria.microsoft_suite.api_microsoft_org import get_microsoft_graph_api_token, get_data
-from ekilibria.microsoft_suite.time_zones import build_windows_to_iana_map
 
 st.title("🧠 Predicción del tipo de semana")
 st.write("Esta app predice tu tipo de semana en base a tu actividad digital.")

@@ -130,6 +130,10 @@ Requires-Dist: python-dotenv
 Requires-Dist: fastapi
 Requires-Dist: uvicorn
 Requires-Dist: streamlit
+Requires-Dist: msgraph-sdk
+Requires-Dist: msgraph-core
+Requires-Dist: azure-identity
+Requires-Dist: plotly
 Dynamic: license
 Dynamic: requires-dist
 Dynamic: summary

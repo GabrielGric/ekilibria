@@ -4,13 +4,13 @@ import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 import datetime
 import asyncio
+import requests
 from pathlib import Path
 
 # Módulos propios
 from ekilibria.google_suite.auth.authenticate_google_user import authenticate_google_user
 from ekilibria.google_suite.services.extract_features import extract_all_features
 from ekilibria.microsoft_suite.api_microsoft_org import get_microsoft_graph_api_token, get_data
-from ekilibria.microsoft_suite.time_zones import build_windows_to_iana_map
 
 # =========================
 # Configurar la página
@@ -33,14 +33,29 @@ st.markdown("""
 # Inicializar variables
 # =========================
 if "burnout_index" not in st.session_state:
-    st.session_state.burnout_index = 1.6
+    st.session_state.burnout_index = 0
 if "feature_values" not in st.session_state:
     st.session_state.feature_values = [0, 0, 8.62, 0, 0, 0]
 if "history" not in st.session_state:
     st.session_state.history = [1.2, 1.4, 1.7, 1.9, 2.2, 3.1, 2.1, 2.4, 2.7, 3.0]
 
-features = ['emails_sent', 'emails_sent_out_of_hours', 'emails_received', 'num_events', 'num_events_outside_hours', 'total_meeting_hours']
-importances = [0.35, 0.42, 0.55, 0.38, 0.49, 0.12]
+features = [
+    'num_events',
+    'num_events_outside_hours',
+    'total_meeting_hours',
+    'avg_meeting_duration',
+    'meetings_weekend',
+    'emails_sent',
+    'emails_sent_out_of_hours',
+    'docs_created',
+    'docs_edited',
+    'num_meetings_no_breaks',
+    'emails_received',
+    'num_overlapping_meetings'
+]
+st.session_state.feature_values = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+importances = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
 # =======================
 # 🧩 Panel lateral
@@ -94,9 +109,8 @@ with st.sidebar:
                         fecha_hasta
                     )
                     st.success("✅ Datos extraídos desde Google.")
+                    result = {feature: result.get(feature, 0) for feature in features}
                     st.session_state.feature_values = list(result.values())
-                    st.session_state.burnout_index = result.get("burnout_index", 1.6)
-                    st.session_state.history.append(st.session_state.burnout_index)
 
             elif proveedor == "Microsoft":
                 if "client" not in st.session_state:
@@ -104,16 +118,25 @@ with st.sidebar:
                 else:
                     loop = st.session_state.loop
                     client = st.session_state.client
-                    ruta_xml = Path("ekilibria/microsoft_suite/data/windowsZones.xml")
-                    time_zone_map = build_windows_to_iana_map(ruta_xml)
-                    result = loop.run_until_complete(get_data(client, fecha_desde, fecha_hasta, time_zone_map))
+                    result = loop.run_until_complete(get_data(client))
                     st.success("✅ Datos extraídos desde Microsoft.")
+                    # order the result to match the features
+                    result = {feature: result.get(feature, 0) for feature in features}
                     st.session_state.feature_values = list(result.values())
-                    st.session_state.burnout_index = result.get("burnout_index", 1.6)
-                    st.session_state.history.append(st.session_state.burnout_index)
 
             else:
                 st.warning("⚠️ Proveedor no reconocido.")
+
+            if st.session_state.feature_values != [0] * len(features):
+                # Get index from api
+                json = { "features": result } if isinstance(result, dict) else { "features": {} }
+
+                response = requests.post("http://127.0.0.1:8000/predict", json=json)
+                if response.status_code == 200:
+                    prediction = response.json()
+                    st.session_state.burnout_index = prediction.get("burnout_index", 1.6)
+                    st.session_state.history.append(st.session_state.burnout_index)
+
         except Exception as e:
             st.error(f"❌ Error extrayendo datos: {e}")
 
@@ -125,7 +148,7 @@ st.markdown("## 🧠 Burnout Dashboard 🔥 Resultado de la semana")
 # =======================
 # 📊 Gráficos principales
 # =======================
-col1, col2, col3 = st.columns([1.2, 1.5, 1.3])
+col1, col2, col3 = st.columns([1.2, 1.3, 1.3], gap="large")
 
 with col1:
     st.markdown("#### Burnout Index")
@@ -136,9 +159,10 @@ with col1:
             'axis': {'range': [0, 10]},
             'bar': {'color': "darkgray"},
             'steps': [
-                {'range': [0, 2], 'color': "lightgreen"},
-                {'range': [2, 5], 'color': "orange"},
-                {'range': [5, 10], 'color': "crimson"}
+                {'range': [0, 2.5], 'color': "green"},
+                {'range': [2.5, 5], 'color': "yellow"},
+                {'range': [5, 7.5], 'color': "orange"},
+                {'range': [7.5,10], 'color': "red"}
             ],
         },
         number={'font': {'size': 48}},
@@ -163,22 +187,23 @@ with col3:
 # =======================
 # 📈 Evolución temporal
 # =======================
-st.markdown("#### 📈 Evolución temporal del burnout")
-fig3 = go.Figure()
-fig3.add_trace(go.Scatter(
-    x=list(range(len(st.session_state.history))),
-    y=st.session_state.history,
-    mode='lines+markers',
-    line=dict(color='royalblue'),
-    marker=dict(size=8),
-    name="Burnout Index",
-    hovertemplate='Semana %{x}<br>Burnout Index %{y:.2f}<extra></extra>'
-))
-fig3.update_layout(
-    xaxis_title='Semana',
-    yaxis_title='Burnout Index',
-    margin=dict(l=40, r=20, t=20, b=40),
-    height=300,
-    template='simple_white'
-)
-st.plotly_chart(fig3, use_container_width=True)
+if st.session_state.periodo in ["Último mes", "Último año"]:
+    st.markdown("#### 📈 Evolución temporal del burnout")
+    fig3 = go.Figure()
+    fig3.add_trace(go.Scatter(
+        x=list(range(len(st.session_state.history))),
+        y=st.session_state.history,
+        mode='lines+markers',
+        line=dict(color='royalblue'),
+        marker=dict(size=8),
+        name="Burnout Index",
+        hovertemplate='Semana %{x}<br>Burnout Index %{y:.2f}<extra></extra>'
+    ))
+    fig3.update_layout(
+        xaxis_title='Semana',
+        yaxis_title='Burnout Index',
+        margin=dict(l=40, r=20, t=20, b=40),
+        height=300,
+        template='simple_white'
+    )
+    st.plotly_chart(fig3, use_container_width=True)

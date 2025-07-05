@@ -133,7 +133,6 @@ async def get_events(client, user_time_zone, iana_time_zone, from_date, to_date)
 
     if not events_response.value:
         print("No events found for the specified date range.")
-        return []
 
     # Initialize counters for various metrics
     total_events = len(events_response.value)
