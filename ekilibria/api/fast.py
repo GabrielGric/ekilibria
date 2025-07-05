@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import Dict
 
-from ekilibria.ml_logic.predict import predict_weektype, predict_burnoutindex, expected_features
+from ekilibria.ml_logic.predict import predict_weektype, predict_burnoutindex, compute_burnout_contributions, expected_features
 
 # Definición del esquema del input
 class FeaturesInput(BaseModel):
@@ -27,4 +27,10 @@ def predict(input_data: FeaturesInput):
     # Realizar la predicción
     prediction1 = predict_weektype(features_dict)
     prediction2 = predict_burnoutindex(features_dict)
-    return {"week_type": prediction1, "burnout_index": prediction2}
+
+    #Calcular la contibución de cada feature
+    explanations = compute_burnout_contributions(features_dict)
+
+    return {"week_type": prediction1,
+            "burnout_index": prediction2,
+            "contributions": explanations}

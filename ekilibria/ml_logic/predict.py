@@ -1,5 +1,6 @@
 import numpy as np
 import joblib
+import shap
 from pathlib import Path
 
 # Ruta a los modelos
@@ -60,3 +61,31 @@ def predict_burnoutindex(features_dict: dict) -> int:
     # Predicción
     prediction = model2.predict(X)
     return prediction[0]
+
+
+def compute_burnout_contributions(features_dict: dict) -> dict:
+    """
+    Devuelve un dict con la contribución *en porcentaje* de cada feature
+    al burnout_index predicho. Ej: { 'emails_sent': +12.3, 'docs_created': -5.6, ... }
+    """
+    # Verificamos que estén todos los features esperados
+    missing = [feat for feat in expected_features if feat not in features_dict]
+    if missing:
+        raise ValueError(f"Faltan las siguientes features: {missing}")
+
+    # Reordenar los valores en el orden esperado
+    X = np.array([[features_dict[feat] for feat in expected_features]])
+
+    # Crear el explainer y obtener valores SHAP
+    explainer = shap.TreeExplainer(model2)
+    shap_values = explainer.shap_values(X)[0]  # contribuciones
+    expected_value = explainer.expected_value  # valor base
+    burnout_index = expected_value + sum(shap_values)
+
+    # Convertimos las contribuciones en % del burnout_index
+    contrib_dict = {
+        feat: round(float(shap_val) / float(burnout_index) * 100, 1)
+        for feat, shap_val in zip(expected_features, shap_values)
+    }
+
+    return contrib_dict
