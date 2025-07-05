@@ -55,7 +55,7 @@ features = [
 ]
 st.session_state.feature_values = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
-importances = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+st.session_state.importances = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
 # =======================
 # 🧩 Panel lateral
@@ -136,6 +136,7 @@ with st.sidebar:
                     prediction = response.json()
                     st.session_state.burnout_index = prediction.get("burnout_index", 1.6)
                     st.session_state.history.append(st.session_state.burnout_index)
+                    st.session_state.importances = prediction.get("contributions", [0] * len(features))
 
         except Exception as e:
             st.error(f"❌ Error extrayendo datos: {e}")
@@ -179,7 +180,7 @@ with col2:
 with col3:
     st.markdown("### Incidencia estimada")
     fig2, ax = plt.subplots(figsize=(6, 8))
-    ax.barh(features, importances, color='skyblue')
+    ax.barh(st.session_state.importances.keys(), st.session_state.importances.values(), color='skyblue')
     ax.set_xlabel("Importancia")
     ax.set_ylabel("Features")
     st.pyplot(fig2)

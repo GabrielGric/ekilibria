@@ -134,6 +134,7 @@ Requires-Dist: msgraph-sdk
 Requires-Dist: msgraph-core
 Requires-Dist: azure-identity
 Requires-Dist: plotly
+Requires-Dist: shap
 Dynamic: license
 Dynamic: requires-dist
 Dynamic: summary

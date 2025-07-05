@@ -127,3 +127,4 @@ msgraph-sdk
 msgraph-core
 azure-identity
 plotly
+shap
