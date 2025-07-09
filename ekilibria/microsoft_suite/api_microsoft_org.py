@@ -3,7 +3,8 @@ import os
 from utils import build_windows_to_iana_map
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
-from azure.identity import AuthenticationRecord, InteractiveBrowserCredential, TokenCachePersistenceOptions
+from azure.core.credentials import AccessToken
+from azure.identity import InteractiveBrowserCredential, TokenCachePersistenceOptions
 from msgraph.generated.users.item.messages.messages_request_builder import MessagesRequestBuilder
 from msgraph.generated.users.item.events.events_request_builder import EventsRequestBuilder
 from kiota_abstractions.base_request_configuration import RequestConfiguration
@@ -27,18 +28,26 @@ async def get_microsoft_graph_api_token(client_id = None):
         )
 
     #scopes = "User.Read"
-    #credential.get_token(scopes)
-    client = GraphServiceClient(credentials=credential)
-
+    token = credential.get_token("https://graph.microsoft.com/.default")
+    token_dict = {"token": token.token, "expires_on": token.expires_on}
+    client = create_graph_client_from_token(token_dict)
+    #client = GraphServiceClient(credentials=credential)
+    
     # Get user email
     try:
         user = await client.me.get()
         print(f"Authenticated as: {user.display_name} ({user.mail})")
+        return user, token_dict
     except Exception as e:
         print(f"❌ Error fetching user information: {e}")
         return None
 
-    return user, client
+def create_graph_client_from_token(token_dict):
+    # token_dict debe tener al menos 'token' y 'expires_on'
+    class SimpleCredential:
+        def get_token(self, *scopes, **kwargs):
+            return AccessToken(token_dict['token'], token_dict['expires_on'])
+    return GraphServiceClient(credentials=SimpleCredential())
 
 # Get the user's working hours and time zone
 async def user(client):
@@ -267,7 +276,7 @@ async def get_data(client):
     # Get past week's date range(Monday to Sunday)
     today = datetime.now(ZoneInfo(iana_time_zone))
     start_of_past_week = today - timedelta(days=today.weekday())  # Monday
-    start_of_past_week -= timedelta(weeks=1)  # Go back one week
+    #start_of_past_week -= timedelta(weeks=1)  # Go back one week
     # Calculate the end of the week (Sunday)
     end_of_week = start_of_past_week + timedelta(days=6)  # Sunday
     from_date = start_of_past_week.replace(hour=0, minute=0, second=0, microsecond=0)
@@ -285,12 +294,6 @@ async def get_data(client):
     result.update(files)
 
     return result
-
-async def login_microsoft(client_id=None):
-    client = get_microsoft_graph_api_token(client_id)
-    users = await user(client)
-
-    return users, client
 
 # Main function to run the script
 async def main():

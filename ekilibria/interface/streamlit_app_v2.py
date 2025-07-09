@@ -55,7 +55,20 @@ features = [
 ]
 st.session_state.feature_values = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
-st.session_state.importances = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+st.session_state.importances = {
+    "num_events": 0,
+    "num_events_outside_hours": 0,
+    "total_meeting_hours": 0,
+    "avg_meeting_duration": 0,
+    "meetings_weekend": 0,
+    "emails_sent": 0,
+    "emails_sent_out_of_hours": 0,
+    "docs_created": 0,
+    "docs_edited": 0,
+    "num_meetings_no_breaks": 0,
+    "emails_received": 0,
+    "num_overlapping_meetings": 0
+}
 
 # =======================
 # 🧩 Panel lateral

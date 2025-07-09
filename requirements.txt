@@ -128,3 +128,4 @@ msgraph-core
 azure-identity
 plotly
 shap
+flask
