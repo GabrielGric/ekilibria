@@ -19,6 +19,8 @@ run-streamlit2:
 run-streamlit3:
 	streamlit run ekilibria/interface/streamlit_app_v3.py
 
+run-flask:
+	flask --app backend.py run --debug --port 5002
 
 reinstall_package:
 	@pip uninstall -y ekilibria || :

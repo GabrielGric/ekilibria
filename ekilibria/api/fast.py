@@ -41,14 +41,14 @@ def predict(input_data: FeaturesInput):
 @app.post("/predict_new")
 def predict_new(input_data: FeaturesInput):
     semanas = input_data.features  # Ahora es una lista de dicts
-    resultados = []
+    result = []
 
     for semana in semanas:
         # Verificamos que estén todas las features esperadas
         features_dict = semana.copy()  # No modificar el original
         missing = [feat for feat in expected_features if feat not in features_dict]
         if missing:
-            resultados.append({
+            result.append({
                 "fecha_desde": semana.get("fecha_desde"),
                 "fecha_hasta": semana.get("fecha_hasta"),
                 "error": f"Faltan las siguientes features: {missing}"
@@ -60,7 +60,7 @@ def predict_new(input_data: FeaturesInput):
         prediction2 = predict_burnoutindex(features_dict)
         explanations = compute_burnout_contributions(features_dict)
 
-        resultados.append({
+        result.append({
             "fecha_desde": semana.get("fecha_desde"),
             "fecha_hasta": semana.get("fecha_hasta"),
             "week_type": prediction1,
@@ -68,4 +68,4 @@ def predict_new(input_data: FeaturesInput):
             "contributions": explanations
         })
 
-    return {"resultados": resultados}
+    return {"result": result}

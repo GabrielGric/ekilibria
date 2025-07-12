@@ -8,11 +8,12 @@ import asyncio
 from ekilibria.google_suite.auth.authenticate_google_user import authenticate_google_user
 from ekilibria.google_suite.services.extract_features import extract_all_features
 from ekilibria.microsoft_suite.api_microsoft_org import get_microsoft_graph_api_token, get_data, create_graph_client_from_token
+from utils import get_last_n_weeks_range
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'dev-secret-key')
 
-FRONTEND_APP = '../frontend/ekilibria-front'
+FRONTEND_APP = 'ekilibria/frontend/ekilibria-front'
 
 features = [
     'num_events',
@@ -32,6 +33,7 @@ features = [
 @app.route("/", defaults={"path": ""})
 @app.route("/<path:path>")
 def catch_all(path):
+    print(f"Serving path: {path}")
     if path != "" and os.path.exists(f"{FRONTEND_APP}/dist/{path}"):
         return send_from_directory(f"{FRONTEND_APP}/dist", path)
     return send_from_directory(f"{FRONTEND_APP}/dist", "index.html")
@@ -41,6 +43,7 @@ def catch_all(path):
 def hello():
     return f"{random.randint(1, 100)} Hello World!"
 
+# Microsoft Graph API Authentication and Feature Extraction
 @app.route("/auth/microsoft")
 def auth_microsoft():
     print("Authenticating with Microsoft Graph API...")
@@ -85,6 +88,51 @@ def get_features_microsoft():
         print(f"Error extracting features from Microsoft: {e}")
         return jsonify({"error": str(e)}), 500
 
+@app.route("/extract_features_microsoft_new/<int:weeks>")
+def get_features_microsoft_new(weeks):
+    token_filename = session.get("token_path")
+    
+    client = create_graph_client_from_token(session["ms_token"])
+    week_ranges = get_last_n_weeks_range(n=weeks)
+    features_result = []
+    
+    asyncio.set_event_loop(asyncio.new_event_loop())
+    loop = asyncio.get_event_loop()
+                
+        
+    for i, (date_from, date_to) in enumerate(week_ranges):
+        print(f"🗓️ Semana {i+1}: desde {date_from} hasta {date_to}")
+        
+        features = loop.run_until_complete(
+            get_data(
+                client,
+                datetime.datetime.combine(date_from, datetime.datetime.min.time()), 
+                datetime.datetime.combine(date_to, datetime.datetime.max.time())))
+
+        features['fecha_desde'] = str(date_from)
+        features['fecha_hasta'] = str(date_to)
+
+        print("✅ Features extraídos:", features)
+        
+        features_result.append(features)
+
+    print(features_result)
+    
+    json = {"features": features_result}
+    
+  
+    response = requests.post("http://127.0.0.1:8000/predict_new", json=json)
+    if response.status_code == 200:
+        prediction = response.json()
+    else:
+        prediction = {"error": "Failed to get prediction from the model"}
+        
+    print(f"Predicción obtenida: {prediction}")
+    
+    return jsonify(prediction,features_result)
+
+
+# Google Suite Authentication and Feature Extraction
 @app.route("/auth/google")
 def auth_google():
     token_path, user_email = authenticate_google_user()
@@ -120,6 +168,45 @@ def get_features_google():
         "features": features_result,
     }
     return jsonify(res)
+
+@app.route("/extract_features_google_new/<int:weeks>")
+def get_features_google_new(weeks):
+    token_filename = session.get("token_path")
+    
+    week_ranges = get_last_n_weeks_range(n=weeks)
+    features_result = []
+    
+    for i, (date_from, date_to) in enumerate(week_ranges):
+        print(f"🗓️ Semana {i+1}: desde {date_from} hasta {date_to}")
+
+        features = extract_all_features(
+            token_filename,
+            fecha_desde=datetime.datetime.combine(date_from, datetime.datetime.min.time()),
+            fecha_hasta=datetime.datetime.combine(date_to, datetime.datetime.max.time())
+        )
+
+        features['fecha_desde'] = str(date_from)
+        features['fecha_hasta'] = str(date_to)
+
+        print("✅ Features extraídos:", features)
+        
+        features_result.append(features)
+
+    print(features_result)
+    
+    json = {"features": features_result}
+    
+  
+    response = requests.post("http://127.0.0.1:8000/predict_new", json=json)
+    if response.status_code == 200:
+        prediction = response.json()
+    else:
+        prediction = {"error": "Failed to get prediction from the model"}
+        
+    print(f"Predicción obtenida: {prediction}")
+    
+    return jsonify(prediction,features_result)
+
 
 if __name__ == "__main__":
     app.run(debug=True)

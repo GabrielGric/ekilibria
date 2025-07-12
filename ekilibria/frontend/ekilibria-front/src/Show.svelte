@@ -4,6 +4,8 @@
     import { userSession } from './lib/userSession.js';
     import * as echarts from 'echarts';
     import { Circle2 } from 'svelte-loading-spinners'; 
+    import Icon from 'svelte-awesome/components/Icon.svelte';
+    import { calendar, calendarO,calendarCheckO } from 'svelte-awesome/icons';
 
     let chartInstance;
     let gaugeInstance;
@@ -12,40 +14,86 @@
     let details = {};
     let contributions = {};
     let loading = false;
+    let weeks = [];
+    let weeksFeatures = [];
+    let weekFrom = '';
+    let weekTo = '';
+    let weekInfo = {};
     
     async function week_info() {
         // Show loading div and hide other elements
         loading = true;
         document.getElementById('details').style.display = 'none';
         document.getElementById('graphs').style.display = 'none';
+        document.getElementById('echarts-line').style.display = 'none';
+        // Deactivate buttons to prevent multiple clicks
+        deactivateButtons();
 
+        let result = [];
         if($userSession.login_method == "google"){
-            const response = await fetch('/extract_features_google/');
+            const response = await fetch('/extract_features_google_new/1');
             if (response.ok) {
                 const data = await response.json();
-                console.log('Data received:', data);
-                burnoutIndex = data.burnout || 0;
-                contributions = data.contributions || {};
-                chartData = Object.entries(contributions).map(([feature, value]) => ({ name: feature, value }));
-                details = data.features || {};
-                updateChart();
-                updateGauge();
-                updateDetails();
+                result = data;
+                console.log('Data received:', data); 
             } else {
                 console.error('Failed to fetch burn out index for week');
             }
         }else if($userSession.login_method == "microsoft"){
-            const response = await fetch('/extract_features_microsoft/');
+            const response = await fetch('/extract_features_microsoft_new/1');
+            if (response.ok) {
+                const data = await response.json();
+                result = data;
+                console.log('Data received:', data);
+            } else {
+                console.error('Failed to fetch burn out index for week');
+            }
+        }
+        let prediction = result[0]["result"][0];
+        let features = result[1];
+        burnoutIndex = prediction.burnout_index || 0;
+        contributions = prediction.contributions || {};
+        chartData = Object.entries(contributions).map(([feature, value]) => ({ name: feature, value }));
+        details = features[0];
+        weekFrom = prediction.fecha_desde || '';
+        weekTo = prediction.fecha_hasta || '';
+        updateChart();
+        updateGauge();
+        updateDetails();
+        updateDates();
+        
+        // Hide loading div
+        loading = false;
+        // Activate buttons after data is loaded
+        activateButtons();
+    }
+
+    async function multiple_week_info(numWeeks){
+        // Show loading div and hide other elements
+        loading = true;
+        document.getElementById('details').style.display = 'none';
+        document.getElementById('graphs').style.display = 'none';
+        deactivateButtons();
+
+        if($userSession.login_method == "google"){
+            const response = await fetch('/extract_features_google_new/' + numWeeks);
             if (response.ok) {
                 const data = await response.json();
                 console.log('Data received:', data);
-                burnoutIndex = data.burnout || 0;
-                contributions = data.contributions || {};
-                chartData = Object.entries(contributions).map(([feature, value]) => ({ name: feature, value }));
-                details = data.features || {};
-                updateChart();
-                updateGauge();
-                updateDetails();
+                weeks = data[0].result;
+                weeksFeatures = data[1];
+                updateLineChart();
+            } else {
+                console.error('Failed to fetch burn out index for week');
+            }
+        }else if($userSession.login_method == "microsoft"){
+            const response = await fetch('/extract_features_microsoft_new/'+ numWeeks);
+            if (response.ok) {
+                const data = await response.json();
+                console.log('Data received:', data);
+                weeks = data[0].result;
+                weeksFeatures = data[1];
+                updateLineChart();
             } else {
                 console.error('Failed to fetch burn out index for week');
             }
@@ -53,6 +101,8 @@
         
         // Hide loading div
         loading = false;
+        // Activate buttons after data is loaded
+        activateButtons();
     }
 
     function updateChart() {
@@ -114,8 +164,8 @@
                     lineStyle: {
                     width: 6,
                     color: [
-                        [0.25, '#7CFFB2'],
-                        [0.5, '#58D9F9'],
+                        [0.25, '#B2FFA9'],
+                        [0.5, '#1B9AAA'],
                         [0.75, '#FDDD60'],
                         [1, '#FF6E76']
                     ]
@@ -187,9 +237,78 @@
         gaugeInstance.setOption(option);
     }
 
+    function updateLineChart(){
+        console.log(weeks);
+        document.getElementById('echarts-line').style.display = 'block';
+        if (!echarts.getInstanceByDom(document.getElementById('echarts-line'))) {
+            chartInstance = echarts.init(document.getElementById('echarts-line'));
+        } else {
+            chartInstance = echarts.getInstanceByDom(document.getElementById('echarts-line'));
+        }
+        const option = {
+            xAxis: {
+                type: 'category',
+                data: weeks.map((week, index) => `Week ${index + 1}`),
+            },
+            yAxis: {
+                type: 'value'
+            },
+            tooltip: {
+                trigger: 'axis',
+                formatter: function(params) {
+                    const weekIndex = params[0].dataIndex;
+                    const weekData = weeks[weekIndex];
+                    return `Week ${weekIndex + 1}: ${weekData.fecha_desde} to ${weekData.fecha_hasta}<br>Burnout Index: ${weekData.burnout_index}`;
+                }
+            },
+            series: [
+                {
+                data: weeks.map(week => week.burnout_index),
+                type: 'line',
+                symbol: 'circle',
+                symbolSize: 20,
+                lineStyle: {
+                    color: '#5470C6',
+                    width: 4,
+                    type: 'dashed'
+                },
+                itemStyle: {
+                    borderWidth: 3,
+                    borderColor: '#EE6666',
+                    color: 'yellow'
+                }
+                }
+            ]
+        };
+        chartInstance.setOption(option);
+
+        // Register click event on data points
+        chartInstance.off('click'); // Remove previous listeners to avoid duplicates
+        chartInstance.on('click', function(params) {
+            if (params.componentType === 'series' && params.seriesType === 'line') {
+                const weekIndex = params.dataIndex;
+                const weekData = weeks[weekIndex];
+                const weekFeatures = weeksFeatures[weekIndex] || {};
+                console.log('Clicked week data:', weekData);
+                console.log('Clicked week features:', weekFeatures);
+                burnoutIndex = weekData.burnout_index || 0;
+                contributions = weekData.contributions || {};
+                chartData = Object.entries(contributions).map(([feature, value]) => ({ name: feature, value }));
+                details = weekFeatures;
+                weekFrom = weekData.fecha_desde || '';
+                weekTo = weekData.fecha_hasta || ''; 
+                updateChart();
+                updateGauge();
+                updateDetails();
+                updateDates();
+
+            }
+        });               
+    }
+
     function updateDetails() {
         const detailsDiv = document.getElementById('details');
-        let result = '<p style="font-weight: bold; text-align: center;">Details</p>'; 
+        let result = ''; 
         
         if(Object.keys(details).length > 0){
             result += '<div style="display: flex; justify-content: center; align-items: center; margin-top: 1em;">';
@@ -198,8 +317,9 @@
             result += '<th style="border: 1px solid #ccc; padding: 4px 8px;">Value</th></tr></thead>';
             result += '<tbody>';
             for (const [feature, value] of Object.entries(details).reverse()) {
+                if(feature === 'fecha_desde' || feature === 'fecha_hasta') continue; // Skip date fields
                 result += `<tr><td style="border: 1px solid #ccc; padding: 4px 8px;">${feature}</td>`;
-                result += `<td style="border: 1px solid #ccc; padding: 4px 8px;">${value.toFixed(2)}</td></tr>`;
+                result += `<td style="border: 1px solid #ccc; padding: 4px 8px;">${value}</td></tr>`;
             }
             result += '</tbody></table></div>';
         } else {
@@ -208,27 +328,58 @@
         detailsDiv.innerHTML = result;
     }
 
+    function updateDates() {
+        const weekFromEle = document.getElementById('week_from');
+        weekFromEle.innerHTML = `Week from: ${weekFrom} to ${weekTo}`;
+        weekFromEle.style.display = 'block';
+    }
+
+    function deactivateButtons() {
+        document.querySelectorAll('button.display-info').forEach(elem => {
+            console.log('Disabling button:', elem);
+            elem.disabled = true;
+            elem.style.cursor = 'not-allowed';
+            elem.style.opacity = '0.5';
+        });
+    }
+
+    function activateButtons() {
+        document.querySelectorAll('button.display-info').forEach(elem => {
+            elem.disabled = false;
+            elem.style.cursor = 'pointer';
+            elem.style.opacity = '1';
+        });
+    }
+
 
     
 </script>
 
 <div class="container">
-    <h2>Welcome {$userSession.user_email}</h2>
-    <p>Do you want to calculate the burn out index of this week, month or year</p>
-    <button class="display-info" on:click={() => week_info()}>Week</button>
-    <button class="display-info" on:click={() => console.log('Burn out index for month')}>Month</button>
-    <button class="display-info" on:click={() => console.log('Burn out index for year')}>Year</button>
+    <h1>Welcome {$userSession.user_email}</h1>
+    <button class="display-info" on:click={() => week_info()}>
+        Week <Icon data={calendar} />
+    </button>
+    <button class="display-info" on:click={() => multiple_week_info(4)}>
+        Month <Icon data={calendarO} />
+    </button>
+    <button class="display-info" on:click={() => multiple_week_info(12)}>
+        Year <Icon data={calendarCheckO} />
+    </button>
 
     <div id="info" style="display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-start; gap: 2em;">
         {#if loading}
             <div id="loading" style="display: flex; justify-content: center; align-items: center; width: 100%; height: 100vh;">
-                <Circle2 size="200" colorOuter="#007BFF" colorCenter="#007BFF" colorInner="#007BFF" />
+                <Circle2 size="200" colorOuter="#2E4052" colorCenter="#2E4052" colorInner="#2E4052" />
             </div>
         {/if}
+        <h3 id="week_from" style="display: none; width:100%"></h3>
+        
         <div id="graphs" style="display: flex; flex-direction: row; gap: 2em; align-items: flex-start;">
             <div id="echarts-gauge" style="width: 350px; height: 300px;"></div>
             <div id="echarts-bar" style="width: 500px; height: 400px;"></div>
         </div>
+        <div id="echarts-line" style="width: 500px; height: 400px; display:none"></div>
         <div id="details"></div>
     </div>
 </div>

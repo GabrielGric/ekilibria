@@ -241,6 +241,9 @@ async def get_files(client, user_time_zone, iana_time_zone, from_date, to_date):
         ## Convert to user's timezone
         created_time = created_time.astimezone(ZoneInfo(iana_time_zone))
         last_modified_time = last_modified_time.astimezone(ZoneInfo(iana_time_zone))
+        ## created_time and last_modified_time to native datetime objects
+        created_time = created_time.replace(tzinfo=None)
+        last_modified_time = last_modified_time.replace(tzinfo=None)
 
         ## Count files created this week
         if created_time:
@@ -262,7 +265,7 @@ async def get_files(client, user_time_zone, iana_time_zone, from_date, to_date):
     return result
 
 
-async def get_data(client):
+async def get_data(client,from_date, to_date):
 
     # Get the user's working hours and time zone
     user_time_zone = await (user(client))
@@ -272,16 +275,7 @@ async def get_data(client):
 
     time_zones = build_windows_to_iana_map()
     iana_time_zone = time_zones.get(user_time_zone["timeZone"].name, 'UTC')
-
-    # Get past week's date range(Monday to Sunday)
-    today = datetime.now(ZoneInfo(iana_time_zone))
-    start_of_past_week = today - timedelta(days=today.weekday())  # Monday
-    #start_of_past_week -= timedelta(weeks=1)  # Go back one week
-    # Calculate the end of the week (Sunday)
-    end_of_week = start_of_past_week + timedelta(days=6)  # Sunday
-    from_date = start_of_past_week.replace(hour=0, minute=0, second=0, microsecond=0)
-    to_date = end_of_week.replace(hour=23, minute=59, second=59, microsecond=999999)
-
+   
     emails_inbox = await (get_mails(client,user_time_zone,iana_time_zone, from_date, to_date,"Inbox"))
     emails_sent = await (get_mails(client,user_time_zone,iana_time_zone, from_date, to_date,"SentItems"))
     events = await (get_events(client, user_time_zone, iana_time_zone, from_date, to_date))

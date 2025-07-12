@@ -28,6 +28,7 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  color:#213547;
 }
 
 h1 {
@@ -48,21 +49,29 @@ h1 {
 
 button {
   border-radius: 8px;
-  border: 1px solid transparent;
+  border: 1px solid #F79D65;
   padding: 0.6em 1.2em;
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: #F7B267;
   cursor: pointer;
+  color: #213547;
   transition: border-color 0.25s;
 }
 button:hover {
-  border-color: #646cff;
+  border-color: #F79D65;
+  background-color: #F79D65;
 }
+
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
+}
+
+body{
+  background-color: #F7B267;
+  color: #213547;
 }
 
 @media (prefers-color-scheme: light) {

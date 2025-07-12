@@ -24,7 +24,7 @@
   }
 
   button:hover {
-    background-color: #005A9E;
+    background-color: #F79D65;
   }
 
   button:focus {
@@ -41,6 +41,11 @@
   import Icon from 'svelte-awesome/components/Icon.svelte';
   import { google, windows } from 'svelte-awesome/icons';
   import { userSession } from './lib/userSession.js';
+  import { fade,draw } from 'svelte/transition'
+  import { onMount } from 'svelte';
+  
+
+  let animate = false
 
   // Button functions
   async function googleLogin() {
@@ -71,14 +76,64 @@
         window.location.href = '/#/show';
     }
   }
+
+  // On mount, animate the buttons
+  onMount(() => {
+    animate = true;
+    const loginButtons = document.getElementById('login-buttons');
+    if (loginButtons) {
+      loginButtons.style.display = 'block';
+    }
+  });
 </script>
 
 <div class="container">
-    <h1>Welcome to Ekilibria</h1>
+  {#if animate}
+    <h1 in:fade={{ duration: 500 }}>Eklibria</h1>
+    <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+      <circle
+        cx="40"
+        cy="40"
+        r="36"
+        stroke="#F19143"
+        stroke-width="6"
+        fill="#fff"
+        in:draw={{ duration: 900 }}
+      />
+      <path
+        d="M20 60 Q40 20 60 60"
+        stroke="#F19143"
+        stroke-width="5"
+        fill="none"
+        in:draw={{ duration: 1200 }}
+      />
+      <circle
+        cx="40"
+        cy="40"
+        r="8"
+        fill="#F19143"
+        in:draw={{ duration: 700 }}
+      />
+      <text
+        x="40"
+        y="75"
+        text-anchor="middle"
+        font-size="16"
+        fill="#F19143"
+        font-family="Arial"
+        font-weight="bold"
+        opacity="0"
+        in:fade={{ duration: 600, delay: 1200 }}
+      >EKI</text>
+    </svg>
+    <p in:fade={{ duration: 500 }}>Please log in to continue</p>
+  {/if}
+  <div id="login-buttons" style="display: none;">
     <button on:click={microsoftLogin} id="microsoft-login" class="microsoft-login">
         <Icon data={windows} style="color: #0078D4; padding-right:5px" />Log in with Microsoft
     </button>
     <button on:click={googleLogin} id="google-login" class="google-login">
       <Icon data={google} style="padding-right:5px" />Log in with Google
     </button>
+  </div>
 </div>
