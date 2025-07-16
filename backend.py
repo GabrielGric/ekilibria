@@ -88,7 +88,7 @@ def get_features_microsoft():
                 
         json = { "features": features_result } if isinstance(features_result, dict) else { "features": {} }
 
-        response = requests.post("http://127.0.0.1:8000/predict", json=json)
+        response = requests.post("https://ekilibria-49509618656.us-central1.run.app/predict", json=json)
         if response.status_code == 200:
             prediction = response.json()
         else:
@@ -139,7 +139,7 @@ def get_features_microsoft_new(weeks):
     json = {"features": features_result}
     
   
-    response = requests.post("http://127.0.0.1:8000/predict_new", json=json)
+    response = requests.post("https://ekilibria-49509618656.us-central1.run.app/predict_new", json=json)
     if response.status_code == 200:
         prediction = response.json()
     else:
@@ -165,7 +165,7 @@ def get_features_google():
     
     json = { "features": features_result } if isinstance(features_result, dict) else { "features": {} }
 
-    response = requests.post("http://127.0.0.1:8000/predict", json=json)
+    response = requests.post("https://ekilibria-49509618656.us-central1.run.app/predict", json=json)
     if response.status_code == 200:
         prediction = response.json()
     else:
@@ -210,7 +210,7 @@ def get_features_google_new(weeks):
     json = {"features": features_result}
     
   
-    response = requests.post("http://127.0.0.1:8000/predict_new", json=json)
+    response = requests.post("https://ekilibria-49509618656.us-central1.run.app/predict_new", json=json)
     if response.status_code == 200:
         prediction = response.json()
     else:
