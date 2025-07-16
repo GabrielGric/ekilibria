@@ -77,13 +77,12 @@
       const response = await msalInstance.loginPopup({
         prompt: "select_account",
         scopes: [
-          "user.read",
-          "mail.read",
-          "calendars.read",
-          "calendars.readbasic",
-          "files.read",
-          "mailboxsettings.read",
-          "user.read"
+          "User.Read",
+          "Mail.Read",
+          "Calendars.Read",
+          "Calendars.ReadBasic",
+          "Files.Read",
+          "MailboxSettings.Read" 
         ]
       });
       
