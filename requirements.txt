@@ -129,3 +129,4 @@ azure-identity
 plotly
 shap
 flask
+gunicorn

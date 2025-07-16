@@ -19,6 +19,20 @@
     let weekFrom = '';
     let weekTo = '';
     let weekInfo = {};
+    const features_display = {
+        'num_events': "Meetings",
+        'num_events_outside_hours': "Meetings Outside Hours",
+        'total_meeting_hours': "Total Meeting Hours",
+        'avg_meeting_duration': "Average Meeting Duration",
+        'meetings_weekend': "Weekend Meetings",
+        'emails_sent': "Emails Sent",
+        'emails_sent_out_of_hours': "Emails Sent Out of Hours",
+        'docs_created': "Documents Created",
+        'docs_edited': "Documents Edited",
+        'num_meetings_no_breaks': "Meetings Without Breaks",
+        'emails_received': "Emails Received",
+        'num_overlapping_meetings': "Overlapping Meetings"
+    };
     
     async function week_info() {
         // Show loading div and hide other elements
@@ -127,7 +141,7 @@
             },
             yAxis: {
                 type: 'category',
-                data: chartData.map(item => item.name)
+                data: chartData.map(item => features_display[item.name] || item.name)
             },
             series: [
                 {
@@ -318,7 +332,7 @@
             result += '<tbody>';
             for (const [feature, value] of Object.entries(details).reverse()) {
                 if(feature === 'fecha_desde' || feature === 'fecha_hasta') continue; // Skip date fields
-                result += `<tr><td style="border: 1px solid #ccc; padding: 4px 8px;">${feature}</td>`;
+                result += `<tr><td style="border: 1px solid #ccc; padding: 4px 8px;">${features_display[feature]}</td>`;
                 result += `<td style="border: 1px solid #ccc; padding: 4px 8px;">${value}</td></tr>`;
             }
             result += '</tbody></table></div>';
