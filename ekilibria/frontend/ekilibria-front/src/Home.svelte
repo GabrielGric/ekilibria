@@ -92,7 +92,7 @@
       });
 
       // Send data to the server
-      const serverResponse = await fetch('/auth/microsoft_new', {
+      const serverResponse = await fetch('/auth/microsoft', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
