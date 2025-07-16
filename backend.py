@@ -70,9 +70,10 @@ def auth_microsoft():
     user, token_info = asyncio.run(get_microsoft_graph_api_token_new(token_dict))
     if user is None:
         return jsonify({"error": "Authentication failed"}), 401
-
+    print(f"User authenticated: {user.display_name}")
     session["ms_token"] = token_info
     session["user"] = user.mail
+    session['user_name'] = user.display_name or user.mail or 'Unknown User'
     return jsonify({
         "user_email": user.mail
     })
@@ -236,6 +237,7 @@ def auth_callback():
     user_info = resp.json()
     print(f"User info received: {user_info}")
     session['user'] = user_info
+    session['user_name'] = user_info.get('name') or user_info.get('email', 'Unknown User')
     TOKEN_DIR = os.getenv("TOKEN_DIR", "google_suite/auth")
     os.makedirs(TOKEN_DIR, exist_ok=True)
     user_email = user_info['email']
@@ -252,6 +254,14 @@ def auth_callback():
 def get_login_method():
     login_method = session.get('login_type')
     return jsonify({'login_method': login_method})
+
+@app.route('/get_login_user_email')
+def get_login_user_email():
+    user_name = session.get('user_name')
+    print(f"User name in session: {user_name}")
+    if not user_name:
+        return jsonify({'error': 'User not authenticated'}), 401
+    return jsonify({'user_name': user_name})
 
 if __name__ == "__main__":
     app.run(debug=True)

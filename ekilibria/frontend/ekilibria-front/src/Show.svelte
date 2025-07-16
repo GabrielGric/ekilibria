@@ -379,6 +379,21 @@
             login_method: data.login_method
             }));
         }
+
+        const userResponse = await fetch('/get_login_user_email');
+        if (userResponse.ok) {
+            const userData = await userResponse.json();
+            userSession.update(session => ({
+            ...session,
+            user_email: userData.user_name || 'Unknown User'
+            }));
+        } else {
+            console.error('Failed to fetch user email');
+            userSession.update(session => ({
+            ...session,
+            user_email: 'Unknown User'
+            }));
+        }
     });
     
 </script>
