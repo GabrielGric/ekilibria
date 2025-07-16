@@ -4,7 +4,7 @@ const msalConfig = {
   auth: {
     clientId: "845ac38e-8122-4897-939d-0532d48feb95",
     authority: "https://login.microsoftonline.com/common",
-    redirectUri: "http://localhost:8080/auth-callback"
+    redirectUri: "https://ekilibria.onrender.com/auth-callback"
   }
 };
 
