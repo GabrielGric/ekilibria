@@ -43,9 +43,10 @@
   import { userSession } from './lib/userSession.js';
   import { fade,draw } from 'svelte/transition'
   import { onMount } from 'svelte';
-  
+  import { msalInstance } from '../auth.js';
 
   let animate = false
+  let loginInProgress = false;
 
   // Button functions
   async function googleLogin() {
@@ -74,6 +75,22 @@
         });
         // redirect to next page
         window.location.href = '/#/show';
+    }
+  }
+
+  async function login() {
+    console.log("login called, inProgress:", loginInProgress); // Debug log
+    if (loginInProgress) return;
+    loginInProgress = true;
+    try {
+      await msalInstance.initialize();
+      const response = await msalInstance.loginPopup();
+      console.log(response);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      loginInProgress = false;
+      console.log("login finished, inProgress:", loginInProgress); // Debug log
     }
   }
 
@@ -129,7 +146,7 @@
     <p in:fade={{ duration: 500 }}>Please log in to continue</p>
   {/if}
   <div id="login-buttons" style="display: none;">
-    <button on:click={microsoftLogin} id="microsoft-login" class="microsoft-login">
+    <button on:click={login} id="microsoft-login" class="microsoft-login">
         <Icon data={windows} style="color: #0078D4; padding-right:5px" />Log in with Microsoft
     </button>
     <button on:click={googleLogin} id="google-login" class="google-login">

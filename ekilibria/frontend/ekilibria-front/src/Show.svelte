@@ -368,6 +368,10 @@
 
     
 </script>
+<head>
+    <meta charset="UTF-8" />
+    <title>Ekilibria</title>
+</head>
 
 <div class="container">
     <h1>Welcome {$userSession.user_email}</h1>
