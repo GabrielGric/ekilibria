@@ -1,19 +1,36 @@
-from flask import Flask, send_from_directory, jsonify, session
+from flask import Flask, send_from_directory, jsonify, session, request, url_for, redirect
+from authlib.integrations.flask_client import OAuth
 import random
 import os
 import datetime
 import requests
 import asyncio
+import pickle
+import json
 
 from ekilibria.google_suite.auth.authenticate_google_user import authenticate_google_user
 from ekilibria.google_suite.services.extract_features import extract_all_features
-from ekilibria.microsoft_suite.api_microsoft_org import get_microsoft_graph_api_token, get_data, create_graph_client_from_token
+from ekilibria.microsoft_suite.api_microsoft_org import get_microsoft_graph_api_token, get_data, create_graph_client_from_token, get_microsoft_graph_api_token_new
 from utils import get_last_n_weeks_range
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'dev-secret-key')
 
 FRONTEND_APP = 'ekilibria/frontend/ekilibria-front'
+oauth = OAuth(app)
+
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
+GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
+SCOPES = os.getenv("GOOGLE_SCOPES", "")
+
+oauth.register(
+    name='google',
+    client_id=GOOGLE_CLIENT_ID,
+    client_secret=GOOGLE_CLIENT_SECRET,
+    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',  # <-- Use this!
+    client_kwargs={'scope': SCOPES},
+    redirect_uri=os.getenv("GOOGLE_REDIRECT_URI", "http://localhost:8080/auth/callback")
+)
 
 features = [
     'num_events',
@@ -38,27 +55,28 @@ def catch_all(path):
         return send_from_directory(f"{FRONTEND_APP}/dist", path)
     return send_from_directory(f"{FRONTEND_APP}/dist", "index.html")
 
-
 @app.route("/hello")
 def hello():
     return f"{random.randint(1, 100)} Hello World!"
 
 # Microsoft Graph API Authentication and Feature Extraction
-@app.route("/auth/microsoft")
+@app.route("/auth/microsoft", methods=["POST"])
 def auth_microsoft():
-    print("Authenticating with Microsoft Graph API...")
-    result = asyncio.run(get_microsoft_graph_api_token())
-    
-    if result is None:
+    session["login_type"] = "microsoft"
+    input = request.json
+    # Extract the login information from the post request
+    token_dict = {"token": input["token"], "expires_on": input["expires_on"]}
+    print(f"Token received: {token_dict}")
+    user, token_info = asyncio.run(get_microsoft_graph_api_token_new(token_dict))
+    if user is None:
         return jsonify({"error": "Authentication failed"}), 401
-    
-    user, token_dict = result
-    session["ms_token"] = token_dict
+
+    session["ms_token"] = token_info
     session["user"] = user.mail
     return jsonify({
         "user_email": user.mail
     })
-
+    
 @app.route("/extract_features_microsoft/")
 def get_features_microsoft():
     print("Extracting features from Microsoft Graph API...")
@@ -133,11 +151,6 @@ def get_features_microsoft_new(weeks):
 
 
 # Google Suite Authentication and Feature Extraction
-@app.route("/auth/google")
-def auth_google():
-    token_path, user_email = authenticate_google_user()
-    session["token_path"] = token_path
-    return jsonify({'user_email': user_email})
 
 @app.route("/extract_features_google/")
 def get_features_google():
@@ -207,6 +220,38 @@ def get_features_google_new(weeks):
     
     return jsonify(prediction,features_result)
 
+@app.route('/auth/google')
+def authenticate_google_user_new():
+    session["login_type"] = "google"
+    return oauth.google.authorize_redirect(url_for('auth_callback', _external=True))
+
+@app.route('/auth/callback')
+def auth_callback():
+    print("Callback received from Google OAuth")
+    token = oauth.google.authorize_access_token()
+    print("Token received:", token)
+    # Use the token to get user info
+    userinfo_url = 'https://openidconnect.googleapis.com/v1/userinfo'
+    resp = oauth.google.get(userinfo_url, token=token)
+    user_info = resp.json()
+    print(f"User info received: {user_info}")
+    session['user'] = user_info
+    TOKEN_DIR = os.getenv("TOKEN_DIR", "google_suite/auth")
+    os.makedirs(TOKEN_DIR, exist_ok=True)
+    user_email = user_info['email']
+    token_filename = os.path.join(TOKEN_DIR, f'token_{user_email}.json')
+    with open(token_filename, 'w') as token_file:
+        json.dump(token, token_file)
+    
+    session['token_path'] = token_filename
+    
+    return redirect("/#/show")
+
+
+@app.route('/get_login_method')
+def get_login_method():
+    login_method = session.get('login_type')
+    return jsonify({'login_method': login_method})
 
 if __name__ == "__main__":
     app.run(debug=True)

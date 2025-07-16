@@ -50,7 +50,12 @@
 
   // Button functions
   async function googleLogin() {
-    console.log('Google login button clicked');
+    userSession.set({
+        user_email: "hola",
+        login_method: 'google' 
+      });
+    window.location.href = '/auth/google';
+    /* console.log('Google login button clicked');
     const response = await fetch('/auth/google');
     if (response.ok) {
         const data = await response.json();
@@ -61,31 +66,58 @@
         // redirect to next page
         window.location.href = '/#/show';
 
-    }
+    } */
   }
 
   async function microsoftLogin() {
-    console.log('Microsoft login button clicked');
-    const response = await fetch('/auth/microsoft');
-    if (response.ok) {
-        const data = await response.json();
-        userSession.set({
-          user_email: data.user_email, 
-          login_method: 'microsoft' 
-        });
-        // redirect to next page
-        window.location.href = '/#/show';
-    }
-  }
-
-  async function login() {
-    console.log("login called, inProgress:", loginInProgress); // Debug log
     if (loginInProgress) return;
     loginInProgress = true;
     try {
       await msalInstance.initialize();
-      const response = await msalInstance.loginPopup();
-      console.log(response);
+      const response = await msalInstance.loginPopup({
+        prompt: "select_account",
+        scopes: [
+          "user.read",
+          "mail.read",
+          "calendars.read",
+          "openid",
+          "profile",
+          "offline_access"
+        ]
+      });
+      
+      userSession.set({
+        user_email: response.account.username,
+        login_method: 'microsoft',
+      });
+
+      // Send data to the server
+      const serverResponse = await fetch('/auth/microsoft_new', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          user_email: response.account.username,
+          login_method: 'microsoft',
+          token: response.accessToken,
+          expires_on: response.expiresOn
+        })
+      });
+
+      if(serverResponse.ok) {
+        const data = await serverResponse.json();
+        console.log("Server response:", data);
+        userSession.set({
+          user_email: data.user_email,
+          login_method: 'microsoft'
+        });
+        // redirect to next page
+        window.location.href = '/#/show';
+      } else {
+        console.error("Failed to authenticate with the server");
+      }
+
     } catch (error) {
       console.error(error);
     } finally {
@@ -146,7 +178,7 @@
     <p in:fade={{ duration: 500 }}>Please log in to continue</p>
   {/if}
   <div id="login-buttons" style="display: none;">
-    <button on:click={login} id="microsoft-login" class="microsoft-login">
+    <button on:click={microsoftLogin} id="microsoft-login" class="microsoft-login">
         <Icon data={windows} style="color: #0078D4; padding-right:5px" />Log in with Microsoft
     </button>
     <button on:click={googleLogin} id="google-login" class="google-login">

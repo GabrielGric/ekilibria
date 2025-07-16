@@ -42,6 +42,21 @@ async def get_microsoft_graph_api_token(client_id = None):
         print(f"❌ Error fetching user information: {e}")
         return None
 
+async def get_microsoft_graph_api_token_new(token_dict):
+
+    client = create_graph_client_from_token(token_dict)
+    
+    # Get user email
+    try:
+        user = await client.me.get()
+        print(f"Authenticated as: {user.display_name} ({user.mail})")
+        return user, token_dict
+    except Exception as e:
+        print(f"❌ Error fetching user information: {e}")
+        return None
+
+
+
 def create_graph_client_from_token(token_dict):
     # token_dict debe tener al menos 'token' y 'expires_on'
     class SimpleCredential:

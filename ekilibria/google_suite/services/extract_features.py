@@ -2,6 +2,7 @@ import pickle
 from datetime import datetime, timedelta, timezone
 
 from googleapiclient.discovery import build
+from google.oauth2.credentials import Credentials
 
 from ekilibria.utils import get_last_n_weeks_range
 
@@ -16,9 +17,17 @@ token_file = os.path.join(TOKEN_DIR, TOKEN_FILENAME)
 
 def extract_email_features(token_file, fecha_desde, fecha_hasta, hora_inicio_laboral=9, hora_fin_laboral=18):
     # Cargar token
-    with open(token_file, 'rb') as token:
-        creds = pickle.load(token)
+    with open(token_file, 'r') as token:
+        token_data = json.load(token)
 
+    creds = Credentials(
+        token=token_data['access_token'],
+        refresh_token=token_data.get('refresh_token'),
+        token_uri='https://oauth2.googleapis.com/token',
+        client_id=os.getenv("GOOGLE_CLIENT_ID"),
+        client_secret=os.getenv("GOOGLE_CLIENT_SECRET")
+    )
+    
     service = build('gmail', 'v1', credentials=creds)
 
     # Asegurar que fecha_desde y fecha_hasta sean datetime
@@ -67,8 +76,17 @@ def extract_email_features(token_file, fecha_desde, fecha_hasta, hora_inicio_lab
 
 def extract_calendar_features(token_file, fecha_desde, fecha_hasta, hora_inicio_laboral=9, hora_fin_laboral=18):
     # Cargar credenciales desde token
-    with open(token_file, 'rb') as token:
-        creds = pickle.load(token)
+    # Cargar credenciales desde token
+    with open(token_file, 'r') as token:
+        token_data = json.load(token)
+
+    creds = Credentials(
+        token=token_data['access_token'],
+        refresh_token=token_data.get('refresh_token'),
+        token_uri='https://oauth2.googleapis.com/token',
+        client_id=os.getenv("GOOGLE_CLIENT_ID"),
+        client_secret=os.getenv("GOOGLE_CLIENT_SECRET")
+    )
 
     service = build('calendar', 'v3', credentials=creds)
 
@@ -163,10 +181,17 @@ def extract_drive_features(token_file, fecha_desde, fecha_hasta):
     import pickle
     import pytz
 
-    # Cargar credenciales desde token serializado
-    with open(token_file, 'rb') as token:
-        creds = pickle.load(token)
+    # Cargar credenciales desde token
+    with open(token_file, 'r') as token:
+        token_data = json.load(token)
 
+    creds = Credentials(
+        token=token_data['access_token'],
+        refresh_token=token_data.get('refresh_token'),
+        token_uri='https://oauth2.googleapis.com/token',
+        client_id=os.getenv("GOOGLE_CLIENT_ID"),
+        client_secret=os.getenv("GOOGLE_CLIENT_SECRET")
+    )
     # Crear servicio de Google Drive
     service = build('drive', 'v3', credentials=creds)
 

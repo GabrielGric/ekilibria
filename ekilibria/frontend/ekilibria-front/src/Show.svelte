@@ -42,9 +42,10 @@
         document.getElementById('echarts-line').style.display = 'none';
         // Deactivate buttons to prevent multiple clicks
         deactivateButtons();
-
+        console.log('Fetching data for week info');
         let result = [];
         if($userSession.login_method == "google"){
+            console.log('Fetching data for Google user');
             const response = await fetch('/extract_features_google_new/1');
             if (response.ok) {
                 const data = await response.json();
@@ -62,6 +63,10 @@
             } else {
                 console.error('Failed to fetch burn out index for week');
             }
+        }else {
+            console.error('Unsupported login method:', $userSession.login_method);
+            loading = false;
+            return;
         }
         let prediction = result[0]["result"][0];
         let features = result[1];
@@ -365,14 +370,18 @@
         });
     }
 
-
+    onMount(async () => {
+        const response = await fetch('/get_login_method');
+        if (response.ok) {
+            const data = await response.json();
+            userSession.update(session => ({
+            ...session,
+            login_method: data.login_method
+            }));
+        }
+    });
     
 </script>
-<head>
-    <meta charset="UTF-8" />
-    <title>Ekilibria</title>
-</head>
-
 <div class="container">
     <h1>Welcome {$userSession.user_email}</h1>
     <button class="display-info" on:click={() => week_info()}>

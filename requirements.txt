@@ -130,3 +130,4 @@ plotly
 shap
 flask
 gunicorn
+Authlib
