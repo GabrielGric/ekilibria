@@ -80,9 +80,10 @@
           "user.read",
           "mail.read",
           "calendars.read",
-          "openid",
-          "profile",
-          "offline_access"
+          "calendars.readbasic",
+          "files.read",
+          "mailboxsettings.read",
+          "user.read"
         ]
       });
       
