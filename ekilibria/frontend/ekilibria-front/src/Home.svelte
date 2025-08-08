@@ -49,10 +49,11 @@
   let loginInProgress = false;
 
   // Button functions
+
   async function googleLogin() {
     userSession.set({
         user_email: "hola",
-        login_method: 'google' 
+        login_method: 'google'
       });
     window.location.href = '/auth/google';
     /* console.log('Google login button clicked');
@@ -61,7 +62,7 @@
         const data = await response.json();
         userSession.set({
           user_email: data.user_email,
-          login_method: 'google' 
+          login_method: 'google'
         });
         // redirect to next page
         window.location.href = '/#/show';
@@ -82,10 +83,10 @@
           "Calendars.Read",
           "Calendars.ReadBasic",
           "Files.Read",
-          "MailboxSettings.Read" 
+          "MailboxSettings.Read"
         ]
       });
-      
+
       userSession.set({
         user_email: response.account.username,
         login_method: 'microsoft',

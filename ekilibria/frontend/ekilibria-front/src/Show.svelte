@@ -3,7 +3,7 @@
     import { onMount } from 'svelte';
     import { userSession } from './lib/userSession.js';
     import * as echarts from 'echarts';
-    import { Circle2 } from 'svelte-loading-spinners'; 
+    import { Circle2 } from 'svelte-loading-spinners';
     import Icon from 'svelte-awesome/components/Icon.svelte';
     import { calendar, calendarO,calendarCheckO } from 'svelte-awesome/icons';
 
@@ -33,7 +33,7 @@
         'emails_received': "Emails Received",
         'num_overlapping_meetings': "Overlapping Meetings"
     };
-    
+
     async function week_info() {
         // Show loading div and hide other elements
         loading = true;
@@ -50,7 +50,7 @@
             if (response.ok) {
                 const data = await response.json();
                 result = data;
-                console.log('Data received:', data); 
+                console.log('Data received:', data);
             } else {
                 console.error('Failed to fetch burn out index for week');
             }
@@ -68,6 +68,9 @@
             loading = false;
             return;
         }
+
+        console.log("Resultado bruto desde week_info:", result);
+
         let prediction = result[0]["result"][0];
         let features = result[1];
         burnoutIndex = prediction.burnout_index || 0;
@@ -80,7 +83,7 @@
         updateGauge();
         updateDetails();
         updateDates();
-        
+
         // Hide loading div
         loading = false;
         // Activate buttons after data is loaded
@@ -117,12 +120,78 @@
                 console.error('Failed to fetch burn out index for week');
             }
         }
-        
+
         // Hide loading div
         loading = false;
         // Activate buttons after data is loaded
         activateButtons();
     }
+
+    async function manual_entry_info() {
+    // Mostrar loading y ocultar visualizaciones
+    loading = true;
+    document.getElementById('details').style.display = 'none';
+    document.getElementById('graphs').style.display = 'none';
+    document.getElementById('echarts-line').style.display = 'none';
+    deactivateButtons();
+
+    try {
+      // Paso 1: pedir los 12 features
+      const manualFeatures = await pedirValoresManuales();
+
+      // Paso 2: enviar al backend en el MISMO formato que usa week_info()
+      console.log('Enviando datos manuales al backend...');
+      const response = await fetch('/predict_givenvalues', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        // OJO: lista con un diccionario adentro
+        body: JSON.stringify({ features: [manualFeatures] })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Backend respondió ${response.status}`);
+      }
+
+      // Igual que week_info()
+      const data = await response.json();
+      let result = data; // <— AHORA SÍ tenés result definido
+
+      console.log('Resultado bruto desde manual_entry_info:', result);
+
+      // Paso 3: actualizar UI (idéntico a week_info)
+      let prediction = result[0]["result"][0];
+      let features   = result[1];
+
+      burnoutIndex  = prediction.burnout_index || 0;
+      contributions = prediction.contributions || {};
+      chartData     = Object.entries(contributions).map(([feature, value]) => ({ name: feature, value }));
+      details       = features[0];
+      weekFrom      = prediction.fecha_desde || '';
+      weekTo        = prediction.fecha_hasta || '';
+
+      updateChart();
+      updateGauge();
+      updateDetails();
+      updateDates();
+
+    } catch (err) {
+      console.error('Error en la predicción con valores manuales:', err);
+    } finally {
+      loading = false;
+      activateButtons();
+    }
+  }
+
+    async function pedirValoresManuales() {
+      const features = {};
+      for (const key in features_display) {
+        const label = features_display[key];
+        const value = prompt(`Enter value for: ${label}`, "0");
+        features[key] = parseFloat(value) || 0;
+      }
+      return features;
+    }
+
 
     function updateChart() {
         // Show the details div and graphs
@@ -315,20 +384,20 @@
                 chartData = Object.entries(contributions).map(([feature, value]) => ({ name: feature, value }));
                 details = weekFeatures;
                 weekFrom = weekData.fecha_desde || '';
-                weekTo = weekData.fecha_hasta || ''; 
+                weekTo = weekData.fecha_hasta || '';
                 updateChart();
                 updateGauge();
                 updateDetails();
                 updateDates();
 
             }
-        });               
+        });
     }
 
     function updateDetails() {
         const detailsDiv = document.getElementById('details');
-        let result = ''; 
-        
+        let result = '';
+
         if(Object.keys(details).length > 0){
             result += '<div style="display: flex; justify-content: center; align-items: center; margin-top: 1em;">';
             result += '<table style="border-collapse: collapse; min-width: 250px;">';
@@ -395,7 +464,7 @@
             }));
         }
     });
-    
+
 </script>
 <div class="container">
     <h1>Welcome {$userSession.user_email}</h1>
@@ -408,6 +477,9 @@
     <button class="display-info" on:click={() => multiple_week_info(12)}>
         Year <Icon data={calendarCheckO} />
     </button>
+    <button class="display-info" on:click={() => manual_entry_info()}>
+        Manual Entry <Icon data={calendar} />
+    </button>
 
     <div id="info" style="display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-start; gap: 2em;">
         {#if loading}
@@ -416,7 +488,7 @@
             </div>
         {/if}
         <h3 id="week_from" style="display: none; width:100%"></h3>
-        
+
         <div id="graphs" style="display: flex; flex-direction: row; gap: 2em; align-items: flex-start;">
             <div id="echarts-gauge" style="width: 350px; height: 300px;"></div>
             <div id="echarts-bar" style="width: 500px; height: 400px;"></div>
@@ -425,5 +497,3 @@
         <div id="details"></div>
     </div>
 </div>
-
-

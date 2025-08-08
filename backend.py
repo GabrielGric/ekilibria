@@ -13,6 +13,9 @@ from ekilibria.google_suite.services.extract_features import extract_all_feature
 from ekilibria.microsoft_suite.api_microsoft_org import get_microsoft_graph_api_token, get_data, create_graph_client_from_token, get_microsoft_graph_api_token_new
 from utils import get_last_n_weeks_range
 
+from dotenv import load_dotenv
+load_dotenv()
+
 app = Flask(__name__)
 app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'dev-secret-key')
 
@@ -77,7 +80,7 @@ def auth_microsoft():
     return jsonify({
         "user_email": user.mail
     })
-    
+
 @app.route("/extract_features_microsoft/")
 def get_features_microsoft():
     print("Extracting features from Microsoft Graph API...")
@@ -86,7 +89,7 @@ def get_features_microsoft():
             return jsonify({"error": "Microsoft client not authenticated"}), 401
         client = create_graph_client_from_token(session["ms_token"])
         features_result = asyncio.run(get_data(client))
-                
+
         json = { "features": features_result } if isinstance(features_result, dict) else { "features": {} }
 
         response = requests.post("https://ekilibria-49509618656.us-central1.run.app/predict", json=json)
@@ -110,44 +113,44 @@ def get_features_microsoft():
 @app.route("/extract_features_microsoft_new/<int:weeks>")
 def get_features_microsoft_new(weeks):
     token_filename = session.get("token_path")
-    
+
     client = create_graph_client_from_token(session["ms_token"])
     week_ranges = get_last_n_weeks_range(n=weeks)
     features_result = []
-    
+
     asyncio.set_event_loop(asyncio.new_event_loop())
     loop = asyncio.get_event_loop()
-                
-        
+
+
     for i, (date_from, date_to) in enumerate(week_ranges):
         print(f"🗓️ Semana {i+1}: desde {date_from} hasta {date_to}")
-        
+
         features = loop.run_until_complete(
             get_data(
                 client,
-                datetime.datetime.combine(date_from, datetime.datetime.min.time()), 
+                datetime.datetime.combine(date_from, datetime.datetime.min.time()),
                 datetime.datetime.combine(date_to, datetime.datetime.max.time())))
 
         features['fecha_desde'] = str(date_from)
         features['fecha_hasta'] = str(date_to)
 
         print("✅ Features extraídos:", features)
-        
+
         features_result.append(features)
 
     print(features_result)
-    
+
     json = {"features": features_result}
-    
-  
+
+
     response = requests.post("https://ekilibria-49509618656.us-central1.run.app/predict_new", json=json)
     if response.status_code == 200:
         prediction = response.json()
     else:
         prediction = {"error": "Failed to get prediction from the model"}
-        
+
     print(f"Predicción obtenida: {prediction}")
-    
+
     return jsonify(prediction,features_result)
 
 
@@ -163,7 +166,7 @@ def get_features_google():
                 fecha_desde,
                 fecha_hasta
             )
-    
+
     json = { "features": features_result } if isinstance(features_result, dict) else { "features": {} }
 
     response = requests.post("https://ekilibria-49509618656.us-central1.run.app/predict", json=json)
@@ -171,7 +174,7 @@ def get_features_google():
         prediction = response.json()
     else:
         prediction = {"error": "Failed to get prediction from the model"}
-        
+
 
     contributions = prediction.get("contributions", {})
     contributions = {k: v for k, v in contributions.items() if k in features}
@@ -186,10 +189,10 @@ def get_features_google():
 @app.route("/extract_features_google_new/<int:weeks>")
 def get_features_google_new(weeks):
     token_filename = session.get("token_path")
-    
+
     week_ranges = get_last_n_weeks_range(n=weeks)
     features_result = []
-    
+
     for i, (date_from, date_to) in enumerate(week_ranges):
         print(f"🗓️ Semana {i+1}: desde {date_from} hasta {date_to}")
 
@@ -203,23 +206,52 @@ def get_features_google_new(weeks):
         features['fecha_hasta'] = str(date_to)
 
         print("✅ Features extraídos:", features)
-        
+
         features_result.append(features)
 
     print(features_result)
-    
+
     json = {"features": features_result}
-    
-  
+
+
     response = requests.post("https://ekilibria-49509618656.us-central1.run.app/predict_new", json=json)
     if response.status_code == 200:
         prediction = response.json()
     else:
         prediction = {"error": "Failed to get prediction from the model"}
-        
+
     print(f"Predicción obtenida: {prediction}")
-    
+
     return jsonify(prediction,features_result)
+
+############# nuevo ###########
+@app.route("/predict_givenvalues", methods=["POST"])
+def get_prediction_givenvalues():
+    data = request.get_json() or {}
+    # Esperamos una lista de features dicts
+    features_result = data.get("features", [])
+    if isinstance(features_result, dict):
+        # por si vino un dict suelto, lo normalizamos a lista
+        features_result = [features_result]
+
+    # Armamos el payload para la API de predicción (idéntico a week_info)
+    json_payload = {"features": features_result}
+
+    response = requests.post(
+        "https://ekilibria-49509618656.us-central1.run.app/predict_new",
+        json=json_payload,
+        timeout=30
+    )
+
+    if response.status_code == 200:
+        prediction = response.json()  # esto es un dict con "result": [...]
+    else:
+        prediction = {"error": "Failed to get prediction from the model"}
+
+    # DEVOLVEMOS EL MISMO SHAPE QUE week_info():
+    # jsonify(prediction, features_result)
+    return jsonify(prediction, features_result)
+############# fin de nuevo ###########
 
 @app.route('/auth/google')
 def authenticate_google_user_new():
@@ -244,9 +276,9 @@ def auth_callback():
     token_filename = os.path.join(TOKEN_DIR, f'token_{user_email}.json')
     with open(token_filename, 'w') as token_file:
         json.dump(token, token_file)
-    
+
     session['token_path'] = token_filename
-    
+
     return redirect("/#/show")
 
 
