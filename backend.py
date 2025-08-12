@@ -5,12 +5,10 @@ import os
 import datetime
 import requests
 import asyncio
-import pickle
 import json
 
-from ekilibria.google_suite.auth.authenticate_google_user import authenticate_google_user
 from ekilibria.google_suite.services.extract_features import extract_all_features
-from ekilibria.microsoft_suite.api_microsoft_org import get_microsoft_graph_api_token, get_data, create_graph_client_from_token, get_microsoft_graph_api_token_new
+from ekilibria.microsoft_suite.api_microsoft_org import get_data, create_graph_client_from_token, get_microsoft_graph_api_token
 from utils import get_last_n_weeks_range
 
 from dotenv import load_dotenv
@@ -19,22 +17,26 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'dev-secret-key')
 
+# ENV variables
 FRONTEND_APP = 'ekilibria/frontend/ekilibria-front'
-oauth = OAuth(app)
-
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
 SCOPES = os.getenv("GOOGLE_SCOPES", "")
+ENV = os.getenv("VITE_ENV", "development")
 
+# OAuth configuration
+oauth = OAuth(app)
 oauth.register(
     name='google',
     client_id=GOOGLE_CLIENT_ID,
     client_secret=GOOGLE_CLIENT_SECRET,
     server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',  # <-- Use this!
     client_kwargs={'scope': SCOPES},
+    prompt='consent',
     redirect_uri=os.getenv("GOOGLE_REDIRECT_URI", "http://localhost:8080/auth/callback")
 )
 
+# Features to consider for contribution analysis
 features = [
     'num_events',
     'num_events_outside_hours',
@@ -50,19 +52,16 @@ features = [
     'num_overlapping_meetings'
 ]
 
+# Serve React App
 @app.route("/", defaults={"path": ""})
 @app.route("/<path:path>")
 def catch_all(path):
-    print(f"Serving path: {path}")
     if path != "" and os.path.exists(f"{FRONTEND_APP}/dist/{path}"):
         return send_from_directory(f"{FRONTEND_APP}/dist", path)
     return send_from_directory(f"{FRONTEND_APP}/dist", "index.html")
 
-@app.route("/hello")
-def hello():
-    return f"{random.randint(1, 100)} Hello World!"
-
-# Microsoft Graph API Authentication and Feature Extraction
+## Microsoft
+# Microsoft Graph API Authentication
 @app.route("/auth/microsoft", methods=["POST"])
 def auth_microsoft():
     session["login_type"] = "microsoft"
@@ -70,7 +69,7 @@ def auth_microsoft():
     # Extract the login information from the post request
     token_dict = {"token": input["token"], "expires_on": input["expires_on"]}
     print(f"Token received: {token_dict}")
-    user, token_info = asyncio.run(get_microsoft_graph_api_token_new(token_dict))
+    user, token_info = asyncio.run(get_microsoft_graph_api_token(token_dict))
     if user is None:
         return jsonify({"error": "Authentication failed"}), 401
     print(f"User authenticated: {user.display_name}")
@@ -81,37 +80,9 @@ def auth_microsoft():
         "user_email": user.mail
     })
 
-@app.route("/extract_features_microsoft/")
-def get_features_microsoft():
-    print("Extracting features from Microsoft Graph API...")
-    try:
-        if "ms_token" not in session:
-            return jsonify({"error": "Microsoft client not authenticated"}), 401
-        client = create_graph_client_from_token(session["ms_token"])
-        features_result = asyncio.run(get_data(client))
-
-        json = { "features": features_result } if isinstance(features_result, dict) else { "features": {} }
-
-        response = requests.post("https://ekilibria-49509618656.us-central1.run.app/predict", json=json)
-        if response.status_code == 200:
-            prediction = response.json()
-        else:
-            prediction = {"error": "Failed to get prediction from the model"}
-        contributions = prediction.get("contributions", {})
-        contributions = {k: v for k, v in contributions.items() if k in features}
-        print(f"Extracted features: {prediction}")
-        res = {
-            "burnout": prediction.get("burnout_index", 0),
-            "contributions": contributions,
-            "features": features_result,
-        }
-        return jsonify(res)
-    except Exception as e:
-        print(f"Error extracting features from Microsoft: {e}")
-        return jsonify({"error": str(e)}), 500
-
-@app.route("/extract_features_microsoft_new/<int:weeks>")
-def get_features_microsoft_new(weeks):
+# Endpoint to extract features from Microsoft Graph API
+@app.route("/extract_features_microsoft/<int:weeks>")
+def get_features_microsoft(weeks):
     token_filename = session.get("token_path")
 
     client = create_graph_client_from_token(session["ms_token"])
@@ -142,8 +113,14 @@ def get_features_microsoft_new(weeks):
 
     json = {"features": features_result}
 
+    # Send the features to the prediction API
+    if ENV == "development":
+        print("development API")
+        response = requests.post("http://localhost:8000/predict_new", json=json)
+    else:
+        print("production API")
+        response = requests.post("https://ekilibria-49509618656.us-central1.run.app/predict_new", json=json)
 
-    response = requests.post("https://ekilibria-49509618656.us-central1.run.app/predict_new", json=json)
     if response.status_code == 200:
         prediction = response.json()
     else:
@@ -154,40 +131,16 @@ def get_features_microsoft_new(weeks):
     return jsonify(prediction,features_result)
 
 
-# Google Suite Authentication and Feature Extraction
+## Google
+# Google Suite Authentication
+@app.route('/auth/google')
+def authenticate_google_user():
+    session["login_type"] = "google"
+    return oauth.google.authorize_redirect(url_for('auth_callback', _external=True))
 
-@app.route("/extract_features_google/")
-def get_features_google():
-    token_filename = session.get("token_path")
-    fecha_hasta = datetime.datetime.now()
-    fecha_desde = fecha_hasta - datetime.timedelta(days=7)
-    features_result = extract_all_features(
-                token_filename,
-                fecha_desde,
-                fecha_hasta
-            )
-
-    json = { "features": features_result } if isinstance(features_result, dict) else { "features": {} }
-
-    response = requests.post("https://ekilibria-49509618656.us-central1.run.app/predict", json=json)
-    if response.status_code == 200:
-        prediction = response.json()
-    else:
-        prediction = {"error": "Failed to get prediction from the model"}
-
-
-    contributions = prediction.get("contributions", {})
-    contributions = {k: v for k, v in contributions.items() if k in features}
-    print(f"Extracted features: {prediction}")
-    res = {
-        "burnout": prediction.get("burnout_index", 0),
-        "contributions": contributions,
-        "features": features_result,
-    }
-    return jsonify(res)
-
-@app.route("/extract_features_google_new/<int:weeks>")
-def get_features_google_new(weeks):
+# Endpoint to extract features from Google Suite
+@app.route("/extract_features_google/<int:weeks>")
+def get_features_google(weeks):
     token_filename = session.get("token_path")
 
     week_ranges = get_last_n_weeks_range(n=weeks)
@@ -214,7 +167,14 @@ def get_features_google_new(weeks):
     json = {"features": features_result}
 
 
-    response = requests.post("https://ekilibria-49509618656.us-central1.run.app/predict_new", json=json)
+    # Send the features to the prediction API
+    if ENV == "development":
+        print("development API")
+        response = requests.post("http://localhost:8000/predict_new", json=json)
+    else:
+        print("production API")
+        response = requests.post("https://ekilibria-49509618656.us-central1.run.app/predict_new", json=json)
+
     if response.status_code == 200:
         prediction = response.json()
     else:
@@ -224,40 +184,7 @@ def get_features_google_new(weeks):
 
     return jsonify(prediction,features_result)
 
-############# nuevo ###########
-@app.route("/predict_givenvalues", methods=["POST"])
-def get_prediction_givenvalues():
-    data = request.get_json() or {}
-    # Esperamos una lista de features dicts
-    features_result = data.get("features", [])
-    if isinstance(features_result, dict):
-        # por si vino un dict suelto, lo normalizamos a lista
-        features_result = [features_result]
-
-    # Armamos el payload para la API de predicción (idéntico a week_info)
-    json_payload = {"features": features_result}
-
-    response = requests.post(
-        "https://ekilibria-49509618656.us-central1.run.app/predict_new",
-        json=json_payload,
-        timeout=30
-    )
-
-    if response.status_code == 200:
-        prediction = response.json()  # esto es un dict con "result": [...]
-    else:
-        prediction = {"error": "Failed to get prediction from the model"}
-
-    # DEVOLVEMOS EL MISMO SHAPE QUE week_info():
-    # jsonify(prediction, features_result)
-    return jsonify(prediction, features_result)
-############# fin de nuevo ###########
-
-@app.route('/auth/google')
-def authenticate_google_user_new():
-    session["login_type"] = "google"
-    return oauth.google.authorize_redirect(url_for('auth_callback', _external=True))
-
+# Callback for Google OAuth
 @app.route('/auth/callback')
 def auth_callback():
     print("Callback received from Google OAuth")
@@ -282,11 +209,42 @@ def auth_callback():
     return redirect("/#/show")
 
 
+## MISC API Endpoints
+# Endpoint to get prediction based on given values
+@app.route("/predict_given_values", methods=["POST"])
+def get_prediction_given_values():
+    data = request.get_json() or {}
+    # Esperamos una lista de features dicts
+    features_result = data.get("features", [])
+    if isinstance(features_result, dict):
+        # por si vino un dict suelto, lo normalizamos a lista
+        features_result = [features_result]
+
+    # Armamos el payload para la API de predicción (idéntico a week_info)
+    json_payload = {"features": features_result}
+
+    response = requests.post(
+        "https://ekilibria-49509618656.us-central1.run.app/predict_new",
+        json=json_payload,
+        timeout=30
+    )
+
+    if response.status_code == 200:
+        prediction = response.json()  # esto es un dict con "result": [...]
+    else:
+        prediction = {"error": "Failed to get prediction from the model"}
+
+    # DEVOLVEMOS EL MISMO SHAPE QUE week_info():
+    # jsonify(prediction, features_result)
+    return jsonify(prediction, features_result)
+
+# Endpoint to get the login method(google or microsoft)
 @app.route('/get_login_method')
 def get_login_method():
     login_method = session.get('login_type')
     return jsonify({'login_method': login_method})
 
+# Endpoint to get the logged-in user's email
 @app.route('/get_login_user_email')
 def get_login_user_email():
     user_name = session.get('user_name')
@@ -294,6 +252,13 @@ def get_login_user_email():
     if not user_name:
         return jsonify({'error': 'User not authenticated'}), 401
     return jsonify({'user_name': user_name})
+
+# Endpoint to log out the user
+@app.route('/logout')
+def logout():
+    session.clear()
+    print("User logged out successfully")
+    return redirect("/")
 
 if __name__ == "__main__":
     app.run(debug=True)

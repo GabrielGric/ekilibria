@@ -1,14 +1,10 @@
-import pickle
-from datetime import datetime, timedelta, timezone
-
-from googleapiclient.discovery import build
-from google.oauth2.credentials import Credentials
-
-from ekilibria.utils import get_last_n_weeks_range
-
-from dotenv import load_dotenv
 import json
 import os
+from datetime import datetime, timedelta, timezone
+from googleapiclient.discovery import build
+from google.oauth2.credentials import Credentials
+from dotenv import load_dotenv
+
 load_dotenv()
 
 TOKEN_DIR = os.getenv("TOKEN_DIR", "google_suite/auth")
@@ -75,7 +71,6 @@ def extract_email_features(token_file, fecha_desde, fecha_hasta, hora_inicio_lab
     }
 
 def extract_calendar_features(token_file, fecha_desde, fecha_hasta, hora_inicio_laboral=9, hora_fin_laboral=18):
-    # Cargar credenciales desde token
     # Cargar credenciales desde token
     with open(token_file, 'r') as token:
         token_data = json.load(token)
@@ -175,12 +170,7 @@ def extract_calendar_features(token_file, fecha_desde, fecha_hasta, hora_inicio_
         'num_overlapping_meetings': num_overlapping_meetings
     }
 
-
 def extract_drive_features(token_file, fecha_desde, fecha_hasta):
-    from googleapiclient.discovery import build
-    import pickle
-    import pytz
-
     # Cargar credenciales desde token
     with open(token_file, 'r') as token:
         token_data = json.load(token)
@@ -249,56 +239,6 @@ def extract_all_features(token_file, fecha_desde, fecha_hasta):
     return features
 
 
-import streamlit as st
-from datetime import datetime
-
-def extract_last_n_weeks_features(token_file, n=4):
-    resultados = []
-    week_ranges = get_last_n_weeks_range(n=n)
-
-    for i, (fecha_desde, fecha_hasta) in enumerate(week_ranges):
-        st.write(f"🗓️ Semana {i+1}: desde {fecha_desde} hasta {fecha_hasta}")
-
-        features = extract_all_features(
-            token_file,
-            fecha_desde=datetime.combine(fecha_desde, datetime.min.time()),
-            fecha_hasta=datetime.combine(fecha_hasta, datetime.max.time())
-        )
-
-        features['fecha_desde'] = str(fecha_desde)
-        features['fecha_hasta'] = str(fecha_hasta)
-
-        st.write("✅ Features extraídos:", features)
-
-        resultados.append(features)
-
-    return resultados
-
-
-def save_features_to_json(result: dict, token_file: str, fecha_desde: datetime, fecha_hasta: datetime) -> str:
-    output_data = {
-        "generated_at": datetime.now().isoformat(),
-        "fecha_desde": fecha_desde.isoformat(),
-        "fecha_hasta": fecha_hasta.isoformat(),
-        "features": result
-    }
-
-    user_email = os.path.basename(token_file).replace("token_", "").replace(".json", "")
-    output_filename = f"features_{user_email}_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.json"
-    output_path = os.path.join("ekilibria", "google_suite", "services", "users_features", output_filename)
-
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(output_data, f, indent=2, ensure_ascii=False)
-
-    print(f"✅ Archivo guardado en: {output_path}")
-    return output_path
-
-def load_only_week_features(json_path: str) -> dict:
-    with open(json_path, "r", encoding="utf-8") as f:
-        data = json.load(f)
-    return data["features"]
-
-
 if __name__ == "__main__":
     # fecha_desde = datetime(2025, 6, 16)
     # fecha_hasta = datetime(2025, 6, 25)
@@ -326,4 +266,3 @@ if __name__ == "__main__":
     # # print(result)
     # print(json.dumps(result, indent=2, ensure_ascii=False))
 
-    save_features_to_json(result, token_file, fecha_desde, fecha_hasta)

@@ -18,7 +18,7 @@
     let weeksFeatures = [];
     let weekFrom = '';
     let weekTo = '';
-    let weekInfo = {};
+
     const features_display = {
         'num_events': "Meetings",
         'num_events_outside_hours': "Meetings Outside Hours",
@@ -46,20 +46,18 @@
         let result = [];
         if($userSession.login_method == "google"){
             console.log('Fetching data for Google user');
-            const response = await fetch('/extract_features_google_new/1');
+            const response = await fetch('/extract_features_google/1');
             if (response.ok) {
                 const data = await response.json();
                 result = data;
-                console.log('Data received:', data);
             } else {
                 console.error('Failed to fetch burn out index for week');
             }
         }else if($userSession.login_method == "microsoft"){
-            const response = await fetch('/extract_features_microsoft_new/1');
+            const response = await fetch('/extract_features_microsoft/1');
             if (response.ok) {
                 const data = await response.json();
                 result = data;
-                console.log('Data received:', data);
             } else {
                 console.error('Failed to fetch burn out index for week');
             }
@@ -68,8 +66,6 @@
             loading = false;
             return;
         }
-
-        console.log("Resultado bruto desde week_info:", result);
 
         let prediction = result[0]["result"][0];
         let features = result[1];
@@ -98,10 +94,9 @@
         deactivateButtons();
 
         if($userSession.login_method == "google"){
-            const response = await fetch('/extract_features_google_new/' + numWeeks);
+            const response = await fetch('/extract_features_google/' + numWeeks);
             if (response.ok) {
                 const data = await response.json();
-                console.log('Data received:', data);
                 weeks = data[0].result;
                 weeksFeatures = data[1];
                 updateLineChart();
@@ -109,10 +104,9 @@
                 console.error('Failed to fetch burn out index for week');
             }
         }else if($userSession.login_method == "microsoft"){
-            const response = await fetch('/extract_features_microsoft_new/'+ numWeeks);
+            const response = await fetch('/extract_features_microsoft/'+ numWeeks);
             if (response.ok) {
                 const data = await response.json();
-                console.log('Data received:', data);
                 weeks = data[0].result;
                 weeksFeatures = data[1];
                 updateLineChart();
@@ -128,59 +122,57 @@
     }
 
     async function manual_entry_info() {
-    // Mostrar loading y ocultar visualizaciones
-    loading = true;
-    document.getElementById('details').style.display = 'none';
-    document.getElementById('graphs').style.display = 'none';
-    document.getElementById('echarts-line').style.display = 'none';
-    deactivateButtons();
+        // Mostrar loading y ocultar visualizaciones
+        loading = true;
+        document.getElementById('details').style.display = 'none';
+        document.getElementById('graphs').style.display = 'none';
+        document.getElementById('echarts-line').style.display = 'none';
+        deactivateButtons();
 
-    try {
-      // Paso 1: pedir los 12 features
-      const manualFeatures = await pedirValoresManuales();
+        try {
+        // Paso 1: pedir los 12 features
+        const manualFeatures = await pedirValoresManuales();
 
-      // Paso 2: enviar al backend en el MISMO formato que usa week_info()
-      console.log('Enviando datos manuales al backend...');
-      const response = await fetch('/predict_givenvalues', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        // OJO: lista con un diccionario adentro
-        body: JSON.stringify({ features: [manualFeatures] })
-      });
+        // Paso 2: enviar al backend en el MISMO formato que usa week_info()
+        console.log('Enviando datos manuales al backend...');
+        const response = await fetch('/predict_given_values', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            // OJO: lista con un diccionario adentro
+            body: JSON.stringify({ features: [manualFeatures] })
+        });
 
-      if (!response.ok) {
-        throw new Error(`Backend respondió ${response.status}`);
-      }
+        if (!response.ok) {
+            throw new Error(`Backend respondió ${response.status}`);
+        }
 
-      // Igual que week_info()
-      const data = await response.json();
-      let result = data; // <— AHORA SÍ tenés result definido
+        // Igual que week_info()
+        const data = await response.json();
+        let result = data; // <— AHORA SÍ tenés result definido
 
-      console.log('Resultado bruto desde manual_entry_info:', result);
+        // Paso 3: actualizar UI (idéntico a week_info)
+        let prediction = result[0]["result"][0];
+        let features   = result[1];
 
-      // Paso 3: actualizar UI (idéntico a week_info)
-      let prediction = result[0]["result"][0];
-      let features   = result[1];
+        burnoutIndex  = prediction.burnout_index || 0;
+        contributions = prediction.contributions || {};
+        chartData     = Object.entries(contributions).map(([feature, value]) => ({ name: feature, value }));
+        details       = features[0];
+        weekFrom      = prediction.fecha_desde || '';
+        weekTo        = prediction.fecha_hasta || '';
 
-      burnoutIndex  = prediction.burnout_index || 0;
-      contributions = prediction.contributions || {};
-      chartData     = Object.entries(contributions).map(([feature, value]) => ({ name: feature, value }));
-      details       = features[0];
-      weekFrom      = prediction.fecha_desde || '';
-      weekTo        = prediction.fecha_hasta || '';
+        updateChart();
+        updateGauge();
+        updateDetails();
+        updateDates();
 
-      updateChart();
-      updateGauge();
-      updateDetails();
-      updateDates();
-
-    } catch (err) {
-      console.error('Error en la predicción con valores manuales:', err);
-    } finally {
-      loading = false;
-      activateButtons();
+        } catch (err) {
+        console.error('Error en la predicción con valores manuales:', err);
+        } finally {
+        loading = false;
+        activateButtons();
+        }
     }
-  }
 
     async function pedirValoresManuales() {
       const features = {};
@@ -191,7 +183,6 @@
       }
       return features;
     }
-
 
     function updateChart() {
         // Show the details div and graphs
@@ -326,7 +317,6 @@
     }
 
     function updateLineChart(){
-        console.log(weeks);
         document.getElementById('echarts-line').style.display = 'block';
         if (!echarts.getInstanceByDom(document.getElementById('echarts-line'))) {
             chartInstance = echarts.init(document.getElementById('echarts-line'));
@@ -377,8 +367,6 @@
                 const weekIndex = params.dataIndex;
                 const weekData = weeks[weekIndex];
                 const weekFeatures = weeksFeatures[weekIndex] || {};
-                console.log('Clicked week data:', weekData);
-                console.log('Clicked week features:', weekFeatures);
                 burnoutIndex = weekData.burnout_index || 0;
                 contributions = weekData.contributions || {};
                 chartData = Object.entries(contributions).map(([feature, value]) => ({ name: feature, value }));
@@ -424,7 +412,6 @@
 
     function deactivateButtons() {
         document.querySelectorAll('button.display-info').forEach(elem => {
-            console.log('Disabling button:', elem);
             elem.disabled = true;
             elem.style.cursor = 'not-allowed';
             elem.style.opacity = '0.5';
@@ -437,6 +424,14 @@
             elem.style.cursor = 'pointer';
             elem.style.opacity = '1';
         });
+    }
+
+    function log_out() {
+        userSession.set({
+            user_email: "",
+            login_method: ""
+        });
+        window.location.href = '/logout';
     }
 
     onMount(async () => {
@@ -466,6 +461,7 @@
     });
 
 </script>
+<button id="logout" on:click={() => log_out()}>Logout</button>
 <div class="container">
     <h1>Welcome {$userSession.user_email}</h1>
     <button class="display-info" on:click={() => week_info()}>
@@ -487,8 +483,7 @@
                 <Circle2 size="200" colorOuter="#2E4052" colorCenter="#2E4052" colorInner="#2E4052" />
             </div>
         {/if}
-        <h3 id="week_from" style="display: none; width:100%"></h3>
-
+        <h3 id="week_from" style="display: none; width:100%">.</h3>
         <div id="graphs" style="display: flex; flex-direction: row; gap: 2em; align-items: flex-start;">
             <div id="echarts-gauge" style="width: 350px; height: 300px;"></div>
             <div id="echarts-bar" style="width: 500px; height: 400px;"></div>

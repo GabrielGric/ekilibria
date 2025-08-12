@@ -1,48 +1,21 @@
-import asyncio
 import os
 from utils import build_windows_to_iana_map
-from datetime import datetime, timedelta
+from datetime import datetime
 from zoneinfo import ZoneInfo
 from azure.core.credentials import AccessToken
-from azure.identity import InteractiveBrowserCredential, TokenCachePersistenceOptions
 from msgraph.generated.users.item.messages.messages_request_builder import MessagesRequestBuilder
 from msgraph.generated.users.item.events.events_request_builder import EventsRequestBuilder
 from kiota_abstractions.base_request_configuration import RequestConfiguration
 from kiota_abstractions.headers_collection import HeadersCollection
 from msgraph import GraphServiceClient
 
-# Link for concent to access Microsoft Graph API:
+# Link for consent to access Microsoft Graph API:
 # https://login.microsoftonline.com/common/adminconsent?client_id=845ac38e-8122-4897-939d-0532d48feb95
 
 CLIENT_ID_MICROSOFT = os.getenv("CLIENT_ID_MICROSOFT")
 
-async def get_microsoft_graph_api_token(client_id = None):
-
-    client_id = os.getenv("CLIENT_ID_MICROSOFT")
-
-
-    credential = InteractiveBrowserCredential(
-        client_id=client_id,
-        tenant_id="common",
-        enable_support_logging=True
-        )
-
-    #scopes = "User.Read"
-    token = credential.get_token("https://graph.microsoft.com/.default")
-    token_dict = {"token": token.token, "expires_on": token.expires_on}
-    client = create_graph_client_from_token(token_dict)
-    #client = GraphServiceClient(credentials=credential)
-    
-    # Get user email
-    try:
-        user = await client.me.get()
-        print(f"Authenticated as: {user.display_name} ({user.mail})")
-        return user, token_dict
-    except Exception as e:
-        print(f"❌ Error fetching user information: {e}")
-        return None
-
-async def get_microsoft_graph_api_token_new(token_dict):
+# Function to get Microsoft Graph API token
+async def get_microsoft_graph_api_token(token_dict):
 
     client = create_graph_client_from_token(token_dict)
     
@@ -55,8 +28,7 @@ async def get_microsoft_graph_api_token_new(token_dict):
         print(f"❌ Error fetching user information: {e}")
         return None
 
-
-
+# Function to create a GraphServiceClient from a token dictionary
 def create_graph_client_from_token(token_dict):
     # token_dict debe tener al menos 'token' y 'expires_on'
     class SimpleCredential:
@@ -279,7 +251,7 @@ async def get_files(client, user_time_zone, iana_time_zone, from_date, to_date):
 
     return result
 
-
+# Function to get data from Microsoft Graph API for a specific date range
 async def get_data(client,from_date, to_date):
 
     # Get the user's working hours and time zone
@@ -304,47 +276,6 @@ async def get_data(client,from_date, to_date):
 
     return result
 
-# Main function to run the script
-async def main():
-
-    # Get Microsoft Graph API token
-    client = get_microsoft_graph_api_token(CLIENT_ID_MICROSOFT)
-
-    # Get the user's working hours and time zone
-    user_time_zone = await (user(client))
-    if not user_time_zone:
-        print("❌ Unable to fetch user time zone information.")
-        return
-
-    time_zones = build_windows_to_iana_map()
-    iana_time_zone = time_zones.get(user_time_zone["timeZone"].name, 'UTC')
-
-    # Get past week's date range(Monday to Sunday)
-    today = datetime.now(ZoneInfo(iana_time_zone))
-    start_of_past_week = today - timedelta(days=today.weekday())  # Monday
-    start_of_past_week -= timedelta(weeks=1)  # Go back one week
-    # Calculate the end of the week (Sunday)
-    end_of_week = start_of_past_week + timedelta(days=6)  # Sunday
-    from_date = start_of_past_week.replace(hour=0, minute=0, second=0, microsecond=0)
-    to_date = end_of_week.replace(hour=23, minute=59, second=59, microsecond=999999)
-
-    emails_inbox = await (get_mails(client,user_time_zone,iana_time_zone, from_date, to_date,"Inbox"))
-    emails_sent = await (get_mails(client,user_time_zone,iana_time_zone, from_date, to_date,"SentItems"))
-    events = await (get_events(client, user_time_zone, iana_time_zone, from_date, to_date))
-    files = await (get_files(client, user_time_zone, iana_time_zone, from_date, to_date))
-
-    # Merge results into a single dictionary, keeping the original keys
-    result = emails_inbox.copy()
-    result.update(emails_sent)
-    result.update(events)
-    result.update(files)
-
-    print("\nResults:")
-    for key, value in result.items():
-        print(f"{key}: {value}")
 
 if __name__ == "__main__":
-    #asyncio.run(main())
-    client = get_microsoft_graph_api_token(CLIENT_ID_MICROSOFT)
-    data = asyncio.run(get_data(client))
-    print(data)
+   print("This module is not meant to be run directly. Use it as part of the Microsoft Graph API integration.")

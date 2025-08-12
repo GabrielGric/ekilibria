@@ -1,42 +1,3 @@
-<style>
-  .container {
-    text-align: center;
-    margin-top: 50px;
-  }
-
-  h1 {
-    font-size: 2.5em;
-    margin-bottom: 20px;
-  }
-
-  p {
-    font-size: 1.2em;
-    margin-bottom: 30px;
-  }
-
-  button {
-    border: none;
-    padding: 10px 20px;
-    font-size: 1em;
-    cursor: pointer;
-    margin: 10px;
-    border-radius: 5px;
-  }
-
-  button:hover {
-    background-color: #F79D65;
-  }
-
-  button:focus {
-      outline: none;
-      box-shadow: 0 0 0 3px rgba(0, 120, 212, 0.5);
-  }
-
-  button:active {
-      background-color: #004578;
-  }
-</style>
-
 <script>
   import Icon from 'svelte-awesome/components/Icon.svelte';
   import { google, windows } from 'svelte-awesome/icons';
@@ -44,7 +5,9 @@
   import { fade,draw } from 'svelte/transition'
   import { onMount } from 'svelte';
   import { msalInstance } from '../auth.js';
+  import { Circle2 } from 'svelte-loading-spinners';
 
+  let loading = false;
   let animate = false
   let loginInProgress = false;
 
@@ -56,24 +19,21 @@
         login_method: 'google'
       });
     window.location.href = '/auth/google';
-    /* console.log('Google login button clicked');
-    const response = await fetch('/auth/google');
-    if (response.ok) {
-        const data = await response.json();
-        userSession.set({
-          user_email: data.user_email,
-          login_method: 'google'
-        });
-        // redirect to next page
-        window.location.href = '/#/show';
-
-    } */
   }
 
   async function microsoftLogin() {
+    // Loading spinner and hide buttons
+    loading = true;
+    const loginButtons = document.getElementById('login-buttons');
+    if (loginButtons) {
+      loginButtons.style.display = 'none';
+    }
+
+    // Check if login is already in progress
     if (loginInProgress) return;
     loginInProgress = true;
     try {
+      // Initialize MSAL instance and login
       await msalInstance.initialize();
       const response = await msalInstance.loginPopup({
         prompt: "select_account",
@@ -105,10 +65,10 @@
           expires_on: response.expiresOn
         })
       });
-
+      
+      // Check if the server response is ok
       if(serverResponse.ok) {
         const data = await serverResponse.json();
-        console.log("Server response:", data);
         userSession.set({
           user_email: data.user_email,
           login_method: 'microsoft'
@@ -123,7 +83,13 @@
       console.error(error);
     } finally {
       loginInProgress = false;
-      console.log("login finished, inProgress:", loginInProgress); // Debug log
+    }
+
+    // Hide loading spinner and show buttons
+    loading = false;
+    if (loginButtons) {
+      loginButtons.style.display = 'block';
+      loading = false;
     }
   }
 
@@ -139,7 +105,7 @@
 
 <div class="container">
   {#if animate}
-    <h1 in:fade={{ duration: 500 }}>Eklibria</h1>
+    <h1 in:fade={{ duration: 500 }}>Ekilibria</h1>
     <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
       <circle
         cx="40"
@@ -177,6 +143,11 @@
       >EKI</text>
     </svg>
     <p in:fade={{ duration: 500 }}>Please log in to continue</p>
+  {/if}
+  {#if loading}
+      <div id="loading" style="display: flex; justify-content: center; align-items: center; width: 100%; height: 100vh;">
+          <Circle2 size="200" colorOuter="#2E4052" colorCenter="#2E4052" colorInner="#2E4052" />
+      </div>
   {/if}
   <div id="login-buttons" style="display: none;">
     <button on:click={microsoftLogin} id="microsoft-login" class="microsoft-login">
