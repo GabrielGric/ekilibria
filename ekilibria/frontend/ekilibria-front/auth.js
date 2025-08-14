@@ -7,7 +7,7 @@ if (import.meta.env.VITE_ENV == "production") {
   redirectUri = "https://www.ekilibria.tech/auth-callback";
 }else if (import.meta.env.VITE_ENV == "render") {
   console.log("Render environment detected");
-  redirectUri = "http://www.ekilibria.onrender.com/auth-callback";
+  redirectUri = "https://www.ekilibria.onrender.com/auth-callback";
 }else {
   console.log("Development environment detected");
   redirectUri = "http://localhost:5002/auth-callback";
